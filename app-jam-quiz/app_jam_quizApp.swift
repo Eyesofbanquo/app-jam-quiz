@@ -10,14 +10,10 @@ import SwiftUI
 @main
 struct app_jam_quizApp: App {
   
-  @AppStorage(AppStorageKeys.firstLaunch.key) var firstTime: Bool = true
   
   var body: some Scene {
     WindowGroup {
       ContentView()
-        .sheet(isPresented: $firstTime, content: {
-          Onboarding(firstLaunch: $firstTime)
-        })
     }
   }
 }

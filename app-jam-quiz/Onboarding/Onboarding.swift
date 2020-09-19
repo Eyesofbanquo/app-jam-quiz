@@ -44,12 +44,15 @@ struct Onboarding: View {
           Text("Continue")
             .font(.body)
             .bold()
+            .frame(minWidth: 0.0, maxWidth: proxy.frame(in: .global).width * 0.75)
+            .padding()
+            .background(RoundedRectangle(cornerRadius: 12.0).foregroundColor(.green))
             .foregroundColor(.white)
+            .contentShape(Rectangle())
         }
-        .frame(minWidth: 0.0, maxWidth: proxy.frame(in: .global).width * 0.75)
-        .padding()
-        .background(RoundedRectangle(cornerRadius: 12.0).foregroundColor(.green))
-
+        
+        
+        
         
         Spacer()
           .frame(height: 8.0)
@@ -104,7 +107,7 @@ struct Onboarding: View {
         .foregroundColor(.red)
         .aspectRatio(contentMode: .fit)
         .frame(width: 44.0, height: 44.0)
-
+      
       VStack(alignment: .leading, spacing: 8.0) {
         Text(title)
         Text(subtitle)

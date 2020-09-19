@@ -17,6 +17,7 @@
 		33C5437E25169A3500B2C316 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C5437D25169A3500B2C316 /* Theme.swift */; };
 		33C5438225169D8200B2C316 /* ThemeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C5438125169D8200B2C316 /* ThemeView.swift */; };
 		33C5438525169E5700B2C316 /* Previewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C5438425169E5700B2C316 /* Previewer.swift */; };
+		33C5438B2516C4BA00B2C316 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C5438A2516C4BA00B2C316 /* Settings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		33C5437D25169A3500B2C316 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		33C5438125169D8200B2C316 /* ThemeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeView.swift; sourceTree = "<group>"; };
 		33C5438425169E5700B2C316 /* Previewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Previewer.swift; sourceTree = "<group>"; };
+		33C5438A2516C4BA00B2C316 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +66,7 @@
 		33C5435C25167DF200B2C316 /* app-jam-quiz */ = {
 			isa = PBXGroup;
 			children = (
+				33C543892516C4B500B2C316 /* Settings */,
 				33C5437C25169A2B00B2C316 /* Colors */,
 				33C543722516886400B2C316 /* Keys */,
 				33C5436D2516835C00B2C316 /* Onboarding */,
@@ -109,6 +112,14 @@
 				33C5438125169D8200B2C316 /* ThemeView.swift */,
 			);
 			path = Colors;
+			sourceTree = "<group>";
+		};
+		33C543892516C4B500B2C316 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				33C5438A2516C4BA00B2C316 /* Settings.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -183,6 +194,7 @@
 				33C543702516836900B2C316 /* Onboarding.swift in Sources */,
 				33C5438225169D8200B2C316 /* ThemeView.swift in Sources */,
 				33C54378251691E800B2C316 /* OnboardingListContent.swift in Sources */,
+				33C5438B2516C4BA00B2C316 /* Settings.swift in Sources */,
 				33C5438525169E5700B2C316 /* Previewer.swift in Sources */,
 				33C543742516887400B2C316 /* AppStorageKeys.swift in Sources */,
 				33C5437E25169A3500B2C316 /* Theme.swift in Sources */,

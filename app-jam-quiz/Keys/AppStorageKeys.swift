@@ -10,6 +10,8 @@ import Foundation
 enum AppStorageKeys: String, RawRepresentable {
   
   case firstLaunch
+  case prefferedDifficulty
+  case continuousMode
   
   var key: String {
     return self.rawValue
