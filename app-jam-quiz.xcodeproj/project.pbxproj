@@ -14,6 +14,9 @@
 		33C543702516836900B2C316 /* Onboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C5436F2516836900B2C316 /* Onboarding.swift */; };
 		33C543742516887400B2C316 /* AppStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C543732516887400B2C316 /* AppStorageKeys.swift */; };
 		33C54378251691E800B2C316 /* OnboardingListContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C54377251691E800B2C316 /* OnboardingListContent.swift */; };
+		33C5437E25169A3500B2C316 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C5437D25169A3500B2C316 /* Theme.swift */; };
+		33C5438225169D8200B2C316 /* ThemeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C5438125169D8200B2C316 /* ThemeView.swift */; };
+		33C5438525169E5700B2C316 /* Previewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C5438425169E5700B2C316 /* Previewer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +29,9 @@
 		33C5436F2516836900B2C316 /* Onboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding.swift; sourceTree = "<group>"; };
 		33C543732516887400B2C316 /* AppStorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorageKeys.swift; sourceTree = "<group>"; };
 		33C54377251691E800B2C316 /* OnboardingListContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingListContent.swift; sourceTree = "<group>"; };
+		33C5437D25169A3500B2C316 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		33C5438125169D8200B2C316 /* ThemeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeView.swift; sourceTree = "<group>"; };
+		33C5438425169E5700B2C316 /* Previewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Previewer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +64,7 @@
 		33C5435C25167DF200B2C316 /* app-jam-quiz */ = {
 			isa = PBXGroup;
 			children = (
+				33C5437C25169A2B00B2C316 /* Colors */,
 				33C543722516886400B2C316 /* Keys */,
 				33C5436D2516835C00B2C316 /* Onboarding */,
 				33C5435D25167DF200B2C316 /* app_jam_quizApp.swift */,
@@ -65,6 +72,7 @@
 				33C5436125167DF400B2C316 /* Assets.xcassets */,
 				33C5436625167DF400B2C316 /* Info.plist */,
 				33C5436325167DF400B2C316 /* Preview Content */,
+				33C5438425169E5700B2C316 /* Previewer.swift */,
 			);
 			path = "app-jam-quiz";
 			sourceTree = "<group>";
@@ -92,6 +100,15 @@
 				33C543732516887400B2C316 /* AppStorageKeys.swift */,
 			);
 			path = Keys;
+			sourceTree = "<group>";
+		};
+		33C5437C25169A2B00B2C316 /* Colors */ = {
+			isa = PBXGroup;
+			children = (
+				33C5437D25169A3500B2C316 /* Theme.swift */,
+				33C5438125169D8200B2C316 /* ThemeView.swift */,
+			);
+			path = Colors;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -164,8 +181,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				33C543702516836900B2C316 /* Onboarding.swift in Sources */,
+				33C5438225169D8200B2C316 /* ThemeView.swift in Sources */,
 				33C54378251691E800B2C316 /* OnboardingListContent.swift in Sources */,
+				33C5438525169E5700B2C316 /* Previewer.swift in Sources */,
 				33C543742516887400B2C316 /* AppStorageKeys.swift in Sources */,
+				33C5437E25169A3500B2C316 /* Theme.swift in Sources */,
 				33C5436025167DF200B2C316 /* ContentView.swift in Sources */,
 				33C5435E25167DF200B2C316 /* app_jam_quizApp.swift in Sources */,
 			);
