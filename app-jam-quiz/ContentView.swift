@@ -32,6 +32,8 @@ struct ContentView: View {
   
   @State var launchResults = false
   
+  @State var launchQuiz = false
+  
   @Namespace var cardAnimation
   
   var body: some View {
@@ -59,6 +61,17 @@ struct ContentView: View {
         }
         .sheet(isPresented: $launchResults) {
           Results()
+        }
+        #endif
+        
+        #if DEBUG
+        Button(action: {
+          self.launchQuiz.toggle()
+        }) {
+          Text("Launch Quiz")
+        }
+        .sheet(isPresented: $launchQuiz) {
+          Quiz()
         }
         #endif
       }
