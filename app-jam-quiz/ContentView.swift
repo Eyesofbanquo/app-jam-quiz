@@ -16,6 +16,8 @@ struct ContentView: View {
   
   @AppStorage(AppStorageKeys.continuousMode.key) var continuousMode: Bool = false
   
+  let cards: [CardContent] = Category.allCases.map { CardContent(category: $0)}
+  
   @State var animateBubble: Bool = false
   
   @State var rotateSettingsIcon: Bool = false
@@ -23,6 +25,12 @@ struct ContentView: View {
   @State var bubbleTapped: Bool = false
   
   @State var launchSettings: Bool = false
+  
+  @State var selectedCard: CardContent?
+  
+  @State var cardDetailIsVisible = false
+  
+  @Namespace var cardAnimation
   
   var body: some View {
     ZStack(alignment: .center) {
@@ -32,12 +40,36 @@ struct ContentView: View {
         })
       
       VStack {
-        CardStack()
+        CardStack(selectedCardAnimationID: cardAnimation,
+                  cards: cards,
+                  selectedCard: $selectedCard)
         
         Spacer()
           .frame(height: 8.0)
         
         GearIcon
+      }
+      
+      if let selectedCard = selectedCard {
+        // Put this in its own detail view
+        Rectangle()
+          .foregroundColor(selectedCard.color)
+          .zIndex(1.0)
+          .opacity(cardDetailIsVisible ? 1.0 : 1.0)
+          .matchedGeometryEffect(id: "card",
+                                 in: cardAnimation,
+                                 properties: [.size], isSource: true)
+          .onAppear {
+            withAnimation {
+              cardDetailIsVisible = true
+            }
+          }
+          .onTapGesture {
+            withAnimation {
+              cardDetailIsVisible = false
+              self.selectedCard = nil
+            }
+          }
       }
     }.onAppear {
       withAnimation(Animation.easeOut(duration: 0.2)) {

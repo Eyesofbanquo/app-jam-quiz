@@ -18,7 +18,12 @@ struct CardContent {
 struct CardStack: View {
   @Environment(\.colorScheme) var colorScheme
   
-  let cards: [CardContent] = Category.allCases.map { CardContent(category: $0)}
+  var selectedCardAnimationID: Namespace.ID
+  
+  let cards: [CardContent]
+  
+  @Binding var selectedCard: CardContent?
+  
   var numberInStack: Int = 3
   
   @State private var dragAmount = CGSize.zero
@@ -34,8 +39,6 @@ struct CardStack: View {
   private static var aspectRatio: CGFloat = 200/150
   private static var factor: CGFloat = 0.067
   private static var offset: CGFloat = 8.0
-  
-  
   
   var body: some View {
     ZStack(alignment: .center) {
@@ -66,6 +69,12 @@ struct CardStack: View {
           .offset(dragAmount)
           .opacity(fadeOverlay ? 0.0 : 1.0)
         })
+        .matchedGeometryEffect(id: "card", in: selectedCardAnimationID, properties: .size, anchor: .center, isSource: false)
+        .onTapGesture {
+          withAnimation {
+            selectedCard = cards[currentPosition]
+          }
+        }
         .gesture(DragGesture()
                   .onChanged { value in
                     self.dragAmount = value.translation
@@ -157,9 +166,22 @@ struct CardStack: View {
 }
 
 struct CardStack_Previews: PreviewProvider {
+  @Namespace static var namespace
+  
+  static var selectedCard = Category.allCases.map { CardContent(category: $0)}.first!
+  
+  static var selectedCardBinding = Binding<CardContent?>(
+    get: {
+      return selectedCard
+    }, set: {
+      selectedCard = $0!
+    })
+  
   static var previews: some View {
     Previewer {
-      CardStack()
+      CardStack(selectedCardAnimationID: namespace,
+                cards:  Category.allCases.map { CardContent(category: $0)},
+                selectedCard: selectedCardBinding)
     }
   }
 }
