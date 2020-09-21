@@ -30,6 +30,8 @@ struct ContentView: View {
   
   @State var cardDetailIsVisible = false
   
+  @State var launchResults = false
+  
   @Namespace var cardAnimation
   
   var body: some View {
@@ -48,6 +50,17 @@ struct ContentView: View {
           .frame(height: 8.0)
         
         GearIcon
+        
+        #if DEBUG
+        Button(action: {
+          self.launchResults.toggle()
+        }) {
+          Text("Launch results")
+        }
+        .sheet(isPresented: $launchResults) {
+          Results()
+        }
+        #endif
       }
       
       if let selectedCard = selectedCard {
