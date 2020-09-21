@@ -55,6 +55,10 @@ struct Quiz: View {
   
   @State private var showResults = false
   
+  private static var AnswerLabels: [String] = [
+  "A", "B", "C", "D"
+  ]
+  
   var body: some View {
     ZStack {
       Color(category.colorName)
@@ -109,14 +113,16 @@ struct Quiz: View {
   }
   
   private func QuizContent(question: QuizQuestion) -> some View {
-    GroupBox(label: Text(question.question), content: {
+    var question = question
+    question.randomized()
+    
+    return GroupBox(label: Text(question.question), content: {
       LazyVGrid(columns: columns, spacing: 10) {
-        QuizButton(label: "A", content: question.correctAnswer, idx: 0)
-        QuizButton(label: "B", content: question.incorrectAnswers[0], idx: 1)
-        QuizButton(label: "C", content: question.incorrectAnswers[1], idx: 2)
-        QuizButton(label: "D", content: question.incorrectAnswers[2], idx: 3)
+        ForEach((0..<question.total), id: \.self) { idx in
+          QuizButton(label: Self.AnswerLabels[idx], content: question.randomizedQuestions[idx], idx: idx)
+
+        }
       }
-      
     })
     .padding()
   }
