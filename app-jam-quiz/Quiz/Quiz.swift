@@ -92,8 +92,6 @@ struct Quiz: View {
         }
       }
       
-      
-      
       if showResults {
         Results(category: category,
                 resultsData: $questionsAnswered)
@@ -120,15 +118,15 @@ struct Quiz: View {
   private func grade(
                      answerChoice choice: String,
                      at idx: Int) {
-    questionsAnswered[idx] = questions[idx].correctAnswer == choice
+    questionsAnswered[currentQuestion] = questions[idx].correctAnswer == choice
   }
   
   private func QuizButton(label: String,
                           content: String,
                           idx: Int) -> some View {
     Button(action: {
-      setNextQuestion()
       grade(answerChoice: content, at: idx)
+      setNextQuestion()
     }) {
       GroupBox(label: HStack {
         Spacer()
@@ -140,7 +138,6 @@ struct Quiz: View {
         Spacer()
       }, content: {
         VStack {
-          Spacer()
           Text("\(content)")
             .multilineTextAlignment(.center)
             .equal($equalHeight)
