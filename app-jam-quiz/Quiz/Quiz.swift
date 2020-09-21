@@ -66,6 +66,10 @@ struct Quiz: View {
       
       QuizContent(question: questions[currentQuestion])
         .animation(.default)
+      
+      if showResults {
+        
+      }
     }
     .onAppear(perform: {
       cancellable = network.retrieveQuestions(forCategory: category)
