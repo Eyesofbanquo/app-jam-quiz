@@ -5,10 +5,20 @@
 //  Created by Markim Shaw on 9/21/20.
 //
 
+extension String {
+  func decoded() -> String? {
+    guard let data = self.data(using: .utf8) else { return nil }
+    let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: String.Encoding.utf8.rawValue]
+    let attString = try? NSAttributedString(data: data, options: options, documentAttributes: nil)
+    return attString?.string
+  }
+}
+
 struct EqualHeightPreferenceKey: PreferenceKey {
   typealias Value = CGFloat
   static var defaultValue: CGFloat = 0
   static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+    print(nextValue(), "toasted")
     value = nextValue()
   }
 }
@@ -16,10 +26,13 @@ struct EqualHeightPreferenceKey: PreferenceKey {
 struct EqualHeight: ViewModifier {
   let height: Binding<CGFloat?>
   func body(content: Content) -> some View {
-    content.frame(height: height.wrappedValue, alignment: .leading)
+    content
+      .frame(height: height.wrappedValue, alignment: .bottomLeading)
       .background(GeometryReader { proxy in
         Color.clear.preference(key: EqualHeightPreferenceKey.self, value: proxy.size.height)
-      }).onPreferenceChange(EqualHeightPreferenceKey.self) { (value) in
+      })
+      .onPreferenceChange(EqualHeightPreferenceKey.self) { (value) in
+        print(value)
         self.height.wrappedValue = max(self.height.wrappedValue ?? 0, value)
       }
   }
@@ -64,11 +77,29 @@ struct Quiz: View {
       Color(category.colorName)
         .edgesIgnoringSafeArea(.all)
       
-      QuizContent(question: questions[currentQuestion])
-        .animation(.default)
+      VStack(alignment: .leading) {
+        Text("Name")
+          .padding(.horizontal)
+        
+        if questions.count == 0 {
+          ProgressView()
+            .scaleEffect(1.5)
+            .progressViewStyle(CircularProgressViewStyle(tint: Color.white))
+          
+        } else {
+          QuizContent(question: questions[currentQuestion])
+            .animation(.default)
+        }
+      }
+      
+      
       
       if showResults {
-        
+        Results(category: category,
+                resultsData: $questionsAnswered)
+          .transition(.move(edge: .trailing))
+          .animation(.default)
+          .zIndex(1.0)
       }
     }
     .onAppear(perform: {
@@ -102,17 +133,23 @@ struct Quiz: View {
       GroupBox(label: HStack {
         Spacer()
         Text(label)
-          .lineLimit(0)
+          .lineLimit(nil)
           .padding()
           .background(Color.red)
-          .equal($equalLabelHeight)
           .clipShape(Circle())
         Spacer()
       }, content: {
-        Text(content)
-          .equal($equalHeight)
+        VStack {
+          Spacer()
+          Text("\(content)")
+            .multilineTextAlignment(.center)
+            .equal($equalHeight)
+          Spacer()
+        }
+        
       })
     }
+    
     .foregroundColor(.black)
   }
   
@@ -124,7 +161,6 @@ struct Quiz: View {
       LazyVGrid(columns: columns, spacing: 10) {
         ForEach((0..<question.total), id: \.self) { idx in
           QuizButton(label: Self.AnswerLabels[idx], content: question.randomizedQuestions[idx], idx: idx)
-
         }
       }
     })
