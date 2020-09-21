@@ -25,7 +25,7 @@ enum OnboardingListContent: CaseIterable {
     switch self {
       case .fitness: return "Test your might against an entire database of gaming knowledge."
       case .share: return "Get ready to brag! Let all of your friends and family see how well you've done."
-      case .favorite: return "Remember: it's just a game. No stress. Just do your best! 😀"
+      case .favorite: return "Remember: it's just a game. No stress. Just try your best! 🐿"
     }
   }
   

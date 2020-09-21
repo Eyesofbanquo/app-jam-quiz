@@ -35,7 +35,7 @@ struct Settings: View {
               Text(self.difficulty[$0])
             }
           }
-          Text("This allows you to set a preferred difficulty setting.")
+          Text("This allows you to set a preferred difficulty mode.")
             .font(.caption2)
             .foregroundColor(Color(.lightGray))
         }
@@ -74,3 +74,9 @@ struct Settings: View {
 //    Previewer { Settings() }
 //  }
 //}
+
+struct Settings_Previews: PreviewProvider {
+  static var previews: some View {
+    /*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
+  }
+}

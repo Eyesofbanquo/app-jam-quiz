@@ -32,10 +32,7 @@ struct ContentView: View {
         })
       
       VStack {
-        Circle()
-          .frame(width: 150, height: 150)
-          .setColorTheme(complimentConverter(.primary))
-          .scaleEffect(animateBubble ? 1.0 : 0.01)
+        CardStack()
         
         Spacer()
           .frame(height: 8.0)
