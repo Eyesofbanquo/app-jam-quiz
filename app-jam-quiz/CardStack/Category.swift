@@ -16,6 +16,14 @@ enum QuizDifficulty: String {
   case easy = "easy"
   case normal = "medium"
   case hard = "hard"
+  
+  static func getDifficulty(forIndex idx: Int) -> QuizDifficulty {
+    switch idx {
+      case 1: return .normal
+      case 2: return .hard
+      default: return .easy
+    }
+  }
 }
 
 enum Category: String, CaseIterable {
@@ -23,7 +31,7 @@ enum Category: String, CaseIterable {
   case books = "Books"
   case movies = "Movies"
   case music = "Music"
-  case celebrities = "Celebrities"
+//  case celebrities = "Celebrities"
   
   var name: String {
     rawValue
@@ -35,7 +43,6 @@ enum Category: String, CaseIterable {
       case .books: return "book.fill"
       case .movies: return "film.fill"
       case .music: return "music.note"
-      case .celebrities: return "moon.stars.fill"
     }
   }
   
@@ -45,7 +52,6 @@ enum Category: String, CaseIterable {
       case .books: return "books"
       case .movies: return "movies"
       case .music: return "music"
-      case .celebrities: return "celebrities"
     }
   }
   
@@ -55,7 +61,22 @@ enum Category: String, CaseIterable {
       case .books: return 10
       case .movies: return 11
       case .music: return 12
-      case .celebrities: return 36
+    }
+  }
+  
+  var image: String {
+    colorName
+  }
+  
+  var description: String {
+    switch self {
+      case .videoGames: return
+        """
+A wise man once said there's nothing more fun than playing video games. A wise app once said: "Tap on me to see if you really know which wise man said that."
+"""
+      case .books: return "Guards! Guards! Do you know where that line is from? Or is it a title? You do? Well I have more questions for you so why don't you tap on me for more of the kind!"
+      case .movies: return "Did you know that you should know if your time machine works before you flipped the switch? Well that's what a movie told me. I forgot the name of it...Could you help me remember?"
+      case .music: return "Welcome to the hotel of cali-Qizzo. This card is such a lovely place to match your lovely face. Tap in for more."
     }
   }
   

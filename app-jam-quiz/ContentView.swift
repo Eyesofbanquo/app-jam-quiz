@@ -16,6 +16,8 @@ struct ContentView: View {
   
   @AppStorage(AppStorageKeys.continuousMode.key) var continuousMode: Bool = false
   
+  @AppStorage(AppStorageKeys.instant.key) var instantKey: Bool = false
+  
   let cards: [CardContent] = Category.allCases.map { CardContent(category: $0)}
   
   @State var animateBubble: Bool = false
@@ -43,45 +45,54 @@ struct ContentView: View {
           Onboarding(firstLaunch: $firstTime)
         })
       
-      VStack {
-        CardStack(selectedCardAnimationID: cardAnimation,
-                  cards: cards,
-                  selectedCard: $selectedCard)
+      VStack(spacing: 0.0) {
+        Spacer()
+        HStack {
+          Text("Quizzo")
+            .font(.largeTitle)
+            .bold()
+            .foregroundColor(Color(.label))
+          Spacer()
+          GearIcon
+        }
+        .padding(.horizontal)
+        
+        
+        CategoryList(cards: cards, selectedCard: $selectedCard)
+          .padding(.bottom)
         
         Spacer()
           .frame(height: 8.0)
         
-        GearIcon
-        
-        #if DEBUG
-        Button(action: {
-          self.launchResults.toggle()
-        }) {
-          Text("Launch results")
-        }
-        .sheet(isPresented: $launchResults) {
-          Results(showResults: Binding<Bool>(
-                    get: { return false}, set: { _ in }),
-                  selectedCard: Binding<CardContent?>(get: { return nil }, set: {_ in }),
-                  resultsData: Binding<[Int : Bool]>(
-                      get: {
-                        return [0: false, 1: true, 2: false, 3: true, 4: false, 5: true, 6: false, 7: true, 8: false, 9: true]
-                      }, set: { _ in
-                        
-                      }))
-        }
-        #endif
-        
-        #if DEBUG
-        Button(action: {
-          self.launchQuiz.toggle()
-        }) {
-          Text("Launch Quiz")
-        }
-        .sheet(isPresented: $launchQuiz) {
-          Quiz(cardAnimation: cardAnimation, selectedCard: $selectedCard)
-        }
-        #endif
+//        #if DEBUG
+//        Button(action: {
+//          self.launchResults.toggle()
+//        }) {
+//          Text("Launch results")
+//        }
+//        .sheet(isPresented: $launchResults) {
+//          Results(showResults: Binding<Bool>(
+//                    get: { return false}, set: { _ in }),
+//                  selectedCard: Binding<CardContent?>(get: { return nil }, set: {_ in }),
+//                  resultsData: Binding<[Int : Bool]>(
+//                      get: {
+//                        return [0: false, 1: true, 2: false, 3: true, 4: false, 5: true, 6: false, 7: true, 8: false, 9: true]
+//                      }, set: { _ in
+//
+//                      }), streak: Binding<Int>(get: { return 1}, set: { _ in }))
+//        }
+//        #endif
+//
+//        #if DEBUG
+//        Button(action: {
+//          self.launchQuiz.toggle()
+//        }) {
+//          Text("Launch Quiz")
+//        }
+//        .sheet(isPresented: $launchQuiz) {
+//          Quiz(cardAnimation: cardAnimation, selectedCard: $selectedCard)
+//        }
+//        #endif
       }
       
       if let selectedCard = selectedCard {
@@ -112,22 +123,39 @@ struct ContentView: View {
   }
   
   private var GearIcon: some View {
-    Image(systemName: "gear")
-      .font(.title)
-      .foregroundColor(rotateSettingsIcon ? Color(ColorTheme.tertiary.rawValue) : Color(ColorTheme.secondary.rawValue))
-      .padding()
-      .scaleEffect(rotateSettingsIcon ? 1.0 : 0.01)
-      .rotationEffect(rotateSettingsIcon ? .degrees(360) : .degrees(0))
-      .onTapGesture {
-        print("tapped")
-        self.launchSettings = true
+    Button(action: {
+      self.launchSettings = true
+
+    }) {
+      HStack(spacing: 8.0) {
+        Image(systemName: "gear")
+        Text("Options")
+          .font(.subheadline)
+          
       }
-      .contentShape(Circle())
-      .sheet(isPresented: $launchSettings, content: {
-        Settings(firstLaunch: $firstTime,
-                 storageDifficulty: $difficultyIndex,
-                 storageContinuousMode: $continuousMode)
-      })
+      .foregroundColor(Color(.label))
+    }
+    .sheet(isPresented: $launchSettings, content: {
+      Settings()
+    })
+    .padding(.vertical)
+    .contentShape(Rectangle())
+
+    
+//    Image(systemName: "gear")
+//      .font(.title)
+//      .foregroundColor(Color(.label))
+//      .padding()
+//      .scaleEffect(rotateSettingsIcon ? 1.0 : 0.01)
+//      .rotationEffect(rotateSettingsIcon ? .degrees(360) : .degrees(0))
+//      .onTapGesture {
+//        print("tapped")
+//        self.launchSettings = true
+//      }
+//      .contentShape(Circle())
+//      .sheet(isPresented: $launchSettings, content: {
+//        Settings()
+//      })
   }
   private func complimentConverter(_ theme: ColorTheme) -> ColorTheme {
     theme.compliment(colorScheme: colorScheme)

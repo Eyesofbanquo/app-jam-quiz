@@ -6,11 +6,30 @@
 //
 
 extension String {
-  func decoded() -> String? {
-    guard let data = self.data(using: .utf8) else { return nil }
-    let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: String.Encoding.utf8.rawValue]
-    let attString = try? NSAttributedString(data: data, options: options, documentAttributes: nil)
-    return attString?.string
+  func convertHtml() -> NSAttributedString {
+    guard let data = data(using: .utf8) else { return NSAttributedString() }
+    
+    if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil) {
+      return attributedString
+    } else {
+      return NSAttributedString()
+    }
+  }
+}
+
+class Converter: ObservableObject {
+  
+  @Published var convertedString: NSAttributedString?
+  
+  func convert(string: String) {
+    let pub = Future<NSAttributedString?, Never> { seal in
+      DispatchQueue.main.async {
+        seal(.success(string.convertHtml()))
+      }
+
+    }
+    .receive(on: DispatchQueue.main)
+    .assign(to: \.convertedString, on: self)
   }
 }
 
@@ -47,13 +66,24 @@ extension View {
 import Combine
 import Foundation
 import SwiftUI
+import UIKit
 
 struct Quiz: View {
+    
+  @Environment(\.colorScheme) var colorScheme
+  
+  @AppStorage(AppStorageKeys.prefferedDifficulty.key) var difficultyIndex: Int = 1
+  
+  @AppStorage(AppStorageKeys.instant.key) var instantKey: Bool = false
+  
+  @StateObject var converter: Converter = Converter()
   
   var category: Category = .books
   
   var columns: [GridItem] = Array(repeating: .init(.flexible(),
                                                    alignment: .center), count: 2)
+  
+  let generator = UINotificationFeedbackGenerator()
   
   @State var cancellable: AnyCancellable?
   @State var currentQuestion: Int = 0
@@ -66,64 +96,83 @@ struct Quiz: View {
   
   @ObservedObject private var network = Network()
   
+  var colorPicker = ColorPicker()
+  
   var cardAnimation: Namespace.ID
+  
+  var personalizedStreak: Int = 3
   
   @Binding var selectedCard: CardContent?
   
   @State private var showResults = false
   
+  @State private var streak: Int = 0
+  @State private var correctAnswers: Double = 0
+  
   private static var AnswerLabels: [String] = [
   "A", "B", "C", "D"
   ]
   
+  @State var quizTitle: String = ""
+  
+  
   var body: some View {
     ZStack {
       Color(.systemBackground)
-        .edgesIgnoringSafeArea(.all)
         .matchedGeometryEffect(id: "card",
                                in: cardAnimation,
                                properties: [.size], isSource: true)
       
       VStack() {
-
-        Spacer()
-          .frame(height: 8.0)
-
-        
         VStack {
+          
           Rectangle()
             .foregroundColor(Color(category.colorName))
             .frame(height: UIScreen.main.bounds.height * 0.2)
             .overlay(VStack {
+              Spacer()
               HStack {
                 Text(category.rawValue)
                   .font(.largeTitle)
                   .bold()
-                  .foregroundColor(Color(.black))
+                  .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
                 Spacer()
-                Text("Leave Quiz")
+                Button(action: {
+                  withAnimation {
+                    selectedCard = nil
+                  }
+                }) {
+                  Text("Leave Quiz")
+                    .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
+                }
+                
+              }
+              if instantKey {
+                HStack {
+                  if false {
+                    Image("fitness")
+                      .renderingMode(.template)
+                      .foregroundColor(.green)
+                  }
+                  
+                  if streak > personalizedStreak {
+                    Image(systemName: "flame.fill")
+                      .padding(.trailing)
+                      .foregroundColor(.red)
+                  }
+                  ProgressView(value: (Double(currentQuestion) / Double(10)))
+                    .progressViewStyle(LinearProgressViewStyle(tint: colorPicker.textColor(for: category, forScheme: colorScheme)))
+                  Text("\(correctAnswers, specifier: "%.0f")/\(10)")
+                    .font(.body)
+                    .padding(.leading)
+                    .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
+                }
+                .padding()
               }
               
-              HStack {
-                Image(systemName: "heart.fill")
-                  .padding(.trailing)
-                  .foregroundColor(.red)
-                ProgressView()
-                  .progressViewStyle(LinearProgressViewStyle(tint: .white))
-                Text("\(currentQuestion)/\(10)")
-                  .font(.body)
-                  .padding(.leading)
-                  .foregroundColor( { () -> Color in
-                    switch (currentQuestion) {
-                      case (0..<4): return Color.white
-                      case (4..<7): return Color.orange
-                      default: return Color.green
-                    }
-                  }())
-              }
-              .padding()
               Spacer()
-            }.padding())
+            }.padding([.leading, .trailing]))
+          
           if questions.count > 0  {
             QuizContent(question: questions[currentQuestion])
               .animation(.default)
@@ -141,22 +190,8 @@ struct Quiz: View {
         
         Spacer()
         
-        HStack {
-          Spacer()
-          Button(action: {
-            withAnimation {
-              selectedCard = nil
-            }
-          }) {
-            Text("Leave")
-          }
-          .foregroundColor(Color(.label))
-          Spacer()
-        }
-        
         Color(category.colorName)
           .frame(height: UIScreen.main.bounds.height * 0.05)
-          .edgesIgnoringSafeArea(.bottom)
           .opacity(0.2)
         
       }
@@ -165,16 +200,27 @@ struct Quiz: View {
         Results(category: category,
                 showResults: $showResults,
                 selectedCard: $selectedCard,
-                resultsData: $questionsAnswered)
+                resultsData: $questionsAnswered,
+                streak: $streak)
           .transition(.move(edge: .trailing))
           .animation(.default)
           .zIndex(1.0)
       }
     }
     .onAppear(perform: {
-      cancellable = network.retrieveQuestions(forCategory: category)
+      cancellable = network.retrieveQuestions(forCategory: category,
+                                              difficulty: QuizDifficulty.getDifficulty(forIndex: difficultyIndex))
         .assign(to: \.questions, on: self)
     })
+    .edgesIgnoringSafeArea([.top, .bottom])
+  }
+  
+  private var HeaderOverlay: some View {
+    Group {
+      if instantKey {
+        EmptyView()
+      }
+    }
   }
   
   private func setNextQuestion() {
@@ -190,7 +236,25 @@ struct Quiz: View {
   private func grade(
                      answerChoice choice: String,
                      at idx: Int) {
-    questionsAnswered[currentQuestion] = questions[currentQuestion].correctAnswer == choice
+    let isCorrect = questions[currentQuestion].correctAnswer == choice
+    questionsAnswered[currentQuestion] = isCorrect
+    
+    withAnimation {
+      if isCorrect {
+        streak += 1
+      } else {
+        streak = 0
+      }
+    }
+    
+    
+    if instantKey, isCorrect {
+      withAnimation {
+        correctAnswers += 1
+        generator.prepare()
+        generator.notificationOccurred(.success)
+      }
+    }
   }
   
   private func QuizButton(label: String,
@@ -224,8 +288,16 @@ struct Quiz: View {
   private func QuizContent(question: QuizQuestion) -> some View {
     var question = question
     question.randomized()
-    
-    return GroupBox(label: Text(question.question), content: {
+    var quizTitleBinding =  Binding<String>(get: {
+      return quizTitle
+    }, set: { val in
+      DispatchQueue.main.async {
+        quizTitle = val.convertHtml().string
+      }
+    })
+    quizTitleBinding.wrappedValue = question.question
+
+    return GroupBox(label: Text(quizTitleBinding.wrappedValue), content: {
       LazyVGrid(columns: columns, spacing: 10) {
         ForEach((0..<question.total), id: \.self) { idx in
           QuizButton(label: Self.AnswerLabels[idx], content: question.randomizedQuestions[idx], idx: idx)

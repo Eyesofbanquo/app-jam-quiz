@@ -23,6 +23,19 @@ struct ResultsGroupStyle: GroupBoxStyle {
   
 }
 
+class Grader: ObservableObject {
+  func numberCorrect(in resultsData: [Int: Bool]) -> Int {
+    return resultsData.filter { $0.value == true }.count
+  }
+  func numberIncorrect(in resultsData: [Int: Bool]) -> Int {
+    return resultsData.filter { $0.value == false }.count
+  }
+  func totalScore(in resultsData: [Int: Bool]) -> Float {
+    ceil(Float(numberCorrect(in: resultsData)) / Float(resultsData.count) * 100.0)
+  }
+  
+}
+
 struct Results: View {
   
   @Environment(\.presentationMode) var presentationMode
@@ -32,9 +45,12 @@ struct Results: View {
   
   var category: Category = .books
   
+  @StateObject var grader: Grader = Grader()
+  
   @Binding var showResults: Bool
   @Binding var selectedCard: CardContent?
   @Binding var resultsData: [Int: Bool]
+  @Binding var streak: Int
   
   var body: some View {
     ZStack {
@@ -43,67 +59,39 @@ struct Results: View {
       NavigationView {
         VStack {
           GroupBox(label: Label("Your Score", systemImage: "square.and.pencil"), content: {
-            Text("\(totalScore(), specifier: "%.1f")%")
+            Text("\(grader.totalScore(in: resultsData), specifier: "%.1f")%")
               .font(.largeTitle)
               .bold()
           })
           
-          GroupBox(label: HStack {
-            Image(systemName: "checkmark.circle")
-            Text("Correct")
+          ScrollView {
+            
+            Data(title: "Correct",
+                 metric: "\(grader.numberCorrect(in: resultsData))",
+                 subtitle: "correct",
+                 imageName: "checkmark.circle",
+                 tint: Color(.systemGreen))
+            
+            Data(title: "Incorrect",
+                 metric: "\(grader.numberIncorrect(in: resultsData))",
+                 subtitle: "incorrect",
+                 imageName: "xmark.circle",
+                 tint: Color(.systemRed))
+            
+            Data(title: "Streak",
+                 metric: "\(streak)",
+                 subtitle: "in a row",
+                 imageName: "flame",
+                 tint: Color(.systemOrange))
+            
+            Data(title: "Time Spent",
+                 metric: "\(grader.numberIncorrect(in: resultsData))",
+                 subtitle: "minutes",
+                 imageName: "clock",
+                 tint: Color(.systemBlue))
           }
-          .foregroundColor(Color(.systemGreen)), content: {
-            HStack(alignment: .firstTextBaseline, spacing: 4.0) {
-              Text("\(numberCorrect())")
-                .font(.title)
-                .bold()
-                .foregroundColor(Color(.label))
-              Text("correct")
-                .font(.body)
-                .foregroundColor(Color(.lightGray))
-              Spacer()
-            }
-            .padding(.top)
-          })
           
-          GroupBox(label:
-                    HStack {
-                      Image(systemName: "xmark.circle")
-                      Text("Incorrect")
-                    }
-                    .foregroundColor(Color(.systemRed)), content: {
-                      HStack(alignment: .firstTextBaseline, spacing: 4.0) {
-                        Text("\(numberIncorrect())")
-                          .font(.title)
-                          .bold()
-                          .foregroundColor(Color(.label))
-                        Text("incorrect")
-                          .font(.body)
-                          .foregroundColor(Color(.lightGray))
-                        Spacer()
-                      }
-                      .padding(.top)
-                    })
-          
-          GroupBox(label:
-                    HStack {
-                      Image(systemName: "clock")
-                      Text("Time Spent")
-                    }
-                    .foregroundColor(Color(.systemBlue)), content: {
-                      HStack(alignment: .firstTextBaseline, spacing: 4.0) {
-                        Text("20")
-                          .font(.title)
-                          .bold()
-                          .foregroundColor(Color(.label))
-                        Text("minutes")
-                          .font(.body)
-                          .foregroundColor(Color(.lightGray))
-                        Spacer()
-                      }
-                      .padding(.top)
-                      
-                    })
+
           Spacer()
         }
         .navigationBarItems(trailing: Button(action: {
@@ -125,14 +113,24 @@ struct Results: View {
     
   }
   
-  private func numberCorrect() -> Int {
-    return resultsData.filter { $0.value == true }.count
-  }
-  private func numberIncorrect() -> Int {
-    return resultsData.filter { $0.value == false }.count
-  }
-  private func totalScore() -> Float {
-    ceil(Float(numberCorrect()) / Float(resultsData.count) * 100.0)
+  private func Data(title: String, metric: String, subtitle: String, imageName: String, tint: Color) -> some View {
+    GroupBox(label: HStack {
+      Image(systemName: imageName)
+      Text(title)
+    }
+    .foregroundColor(tint), content: {
+      HStack(alignment: .firstTextBaseline, spacing: 4.0) {
+        Text(metric)
+          .font(.title)
+          .bold()
+          .foregroundColor(Color(.label))
+        Text(subtitle)
+          .font(.body)
+          .foregroundColor(Color(.lightGray))
+        Spacer()
+      }
+      .padding(.top)
+    })
   }
 }
 
@@ -144,11 +142,11 @@ struct Results_Previews: PreviewProvider {
                 get: { return false}, set: { _ in }),
               selectedCard: Binding<CardContent?>(get: { return nil }, set: {_ in }),
               resultsData: Binding<[Int : Bool]>(
-                  get: {
-                    return [0: false, 1: true, 2: false, 3: true, 4: false, 5: true, 6: false, 7: true, 8: false, 9: true]
-                  }, set: { _ in
-                    
-                  }))
+                get: {
+                  return [0: false, 1: true, 2: false, 3: true, 4: false, 5: true, 6: false, 7: true, 8: false, 9: true]
+                }, set: { _ in
+                  
+                }), streak: Binding<Int>(get: { return 1}, set: { _ in }))
     }
   }
 }

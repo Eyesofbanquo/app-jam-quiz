@@ -3,4 +3,86 @@
    uuid = "CE941F6B-5FD6-48D8-B55E-29A59F3E825B"
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "142225F1-6076-47F0-94F9-9855EE03A0A4"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "app-jam-quiz/Quiz/Quiz.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "25"
+            endingLineNumber = "25"
+            landmarkName = "convert(string:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "142225F1-6076-47F0-94F9-9855EE03A0A4 - 3a2ca5466456a0e9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "app_jam_quiz.Converter.convert(string: Swift.String) -&gt; ()"
+                  moduleName = "app-jam-quiz"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mshaw/Developer/app-jam-quiz/app-jam-quiz/Quiz/Quiz.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "25"
+                  endingLineNumber = "25"
+                  offsetFromSymbolStart = "288">
+               </Location>
+               <Location
+                  uuid = "142225F1-6076-47F0-94F9-9855EE03A0A4 - 48135f67e0e0aea8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 ((Swift.Result&lt;Swift.Optional&lt;__C.NSAttributedString&gt;, Swift.Never&gt;) -&gt; ()) -&gt; () in app_jam_quiz.Converter.convert(string: Swift.String) -&gt; ()"
+                  moduleName = "app-jam-quiz"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mshaw/Developer/app-jam-quiz/app-jam-quiz/Quiz/Quiz.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "26"
+                  endingLineNumber = "26"
+                  offsetFromSymbolStart = "292">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6AA51852-32B9-4A48-A129-4A93FCF279B9"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "app-jam-quiz/Quiz/Quiz.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "27"
+            endingLineNumber = "27"
+            landmarkName = "convert(string:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8796ECDE-30E8-4A7D-A98F-B3A799CE1967"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "app-jam-quiz/Quiz/Quiz.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "295"
+            endingLineNumber = "295"
+            landmarkName = "QuizContent(question:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>

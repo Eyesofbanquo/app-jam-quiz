@@ -12,11 +12,13 @@ struct Settings: View {
   
   @Environment(\.presentationMode) var presentationMode
   
-  @Binding var firstLaunch: Bool
+  @AppStorage(AppStorageKeys.firstLaunch.key) var firstLaunch: Bool = true
   
-  @Binding var storageDifficulty: Int
+  @AppStorage(AppStorageKeys.prefferedDifficulty.key) var difficultyIndex: Int = 1
   
-  @Binding var storageContinuousMode: Bool
+  @AppStorage(AppStorageKeys.continuousMode.key) var continuousMode: Bool = false
+  
+  @AppStorage(AppStorageKeys.instant.key) var instantKey: Bool = false
 
   var difficulty = ["Easy", "Normal", "Hard"]
   
@@ -24,13 +26,21 @@ struct Settings: View {
     NavigationView {
       Form {
         Section(header: Text("GAMEPLAY")) {
-          Toggle(isOn: $storageContinuousMode) {
+          Toggle(isOn: .constant(false)) {
             Text("Continuous Mode")
           }
-          Text("This mode allows you to keep playing until you've answered the minimum number of questions correctly.")
+          Text("This mode allows you to keep playing until you've answered the minimum number of questions correctly. Currently disabled")
             .font(.caption2)
             .foregroundColor(Color(.lightGray))
-          Picker(selection: $storageDifficulty, label: Text("Preset Difficulty")) {
+          
+          Toggle(isOn: $instantKey) {
+            Text("Instant Feedback")
+          }
+          Text("Enabling this will allow for live grading while taking quizzes. This means you'll get feedback on each question the moment you answer it!")
+            .font(.caption2)
+            .foregroundColor(Color(.lightGray))
+          
+          Picker(selection: $difficultyIndex, label: Text("Preset Difficulty")) {
             ForEach(0 ..< difficulty.count) {
               Text(self.difficulty[$0])
             }
@@ -50,8 +60,9 @@ struct Settings: View {
         
         Section {
           Button(action: {
-            storageContinuousMode = false
-            storageDifficulty = 1
+            continuousMode = false
+            difficultyIndex = 1
+            instantKey = false
             firstLaunch = true
             presentationMode.wrappedValue.dismiss()
           }) {
@@ -69,14 +80,8 @@ struct Settings: View {
   
 }
 //
-//struct Settings_Previews: PreviewProvider {
-//  static var previews: some View {
-//    Previewer { Settings() }
-//  }
-//}
-
 struct Settings_Previews: PreviewProvider {
   static var previews: some View {
-    /*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
+    Previewer { Settings() }
   }
 }

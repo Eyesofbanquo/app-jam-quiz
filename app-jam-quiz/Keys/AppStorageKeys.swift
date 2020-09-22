@@ -12,6 +12,7 @@ enum AppStorageKeys: String, RawRepresentable {
   case firstLaunch
   case prefferedDifficulty
   case continuousMode
+  case instant
   
   var key: String {
     return self.rawValue
