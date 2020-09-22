@@ -30,6 +30,12 @@ struct Results: View {
   static var checkmark: Image = Image(systemName: "checkmark.circle")
   static var cross: Image = Image(systemName: "xmark.circle")
   
+  var category: Category = .books
+  
+  @Binding var showResults: Bool
+  @Binding var selectedCard: CardContent?
+  @Binding var resultsData: [Int: Bool]
+  
   var body: some View {
     ZStack {
       Color(ColorTheme.primary.rawValue)
@@ -37,7 +43,7 @@ struct Results: View {
       NavigationView {
         VStack {
           GroupBox(label: Label("Your Score", systemImage: "square.and.pencil"), content: {
-            Text("90%")
+            Text("\(totalScore(), specifier: "%.1f")%")
               .font(.largeTitle)
               .bold()
           })
@@ -48,7 +54,7 @@ struct Results: View {
           }
           .foregroundColor(Color(.systemGreen)), content: {
             HStack(alignment: .firstTextBaseline, spacing: 4.0) {
-              Text("9")
+              Text("\(numberCorrect())")
                 .font(.title)
                 .bold()
                 .foregroundColor(Color(.label))
@@ -67,7 +73,7 @@ struct Results: View {
                     }
                     .foregroundColor(Color(.systemRed)), content: {
                       HStack(alignment: .firstTextBaseline, spacing: 4.0) {
-                        Text("1")
+                        Text("\(numberIncorrect())")
                           .font(.title)
                           .bold()
                           .foregroundColor(Color(.label))
@@ -101,11 +107,13 @@ struct Results: View {
           Spacer()
         }
         .navigationBarItems(trailing: Button(action: {
+          selectedCard = nil
           presentationMode.wrappedValue.dismiss()
         }) {
           Image(systemName: "xmark")
             .font(.title)
             .foregroundColor(Color(.label))
+            .clipShape(Rectangle())
         })
         .navigationTitle(Text("Results"))
         .padding(.horizontal)
@@ -116,12 +124,31 @@ struct Results: View {
     }
     
   }
+  
+  private func numberCorrect() -> Int {
+    return resultsData.filter { $0.value == true }.count
+  }
+  private func numberIncorrect() -> Int {
+    return resultsData.filter { $0.value == false }.count
+  }
+  private func totalScore() -> Float {
+    ceil(Float(numberCorrect()) / Float(resultsData.count) * 100.0)
+  }
 }
 
 struct Results_Previews: PreviewProvider {
+  
   static var previews: some View {
     Previewer {
-      Results()
+      Results(showResults: Binding<Bool>(
+                get: { return false}, set: { _ in }),
+              selectedCard: Binding<CardContent?>(get: { return nil }, set: {_ in }),
+              resultsData: Binding<[Int : Bool]>(
+                  get: {
+                    return [0: false, 1: true, 2: false, 3: true, 4: false, 5: true, 6: false, 7: true, 8: false, 9: true]
+                  }, set: { _ in
+                    
+                  }))
     }
   }
 }

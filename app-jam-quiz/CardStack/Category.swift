@@ -60,7 +60,9 @@ enum Category: String, CaseIterable {
   }
   
   func urlGenerator(difficulty: QuizDifficulty,
-                    type: QuizType = .trueFalse) -> String {
+                    type: QuizType = .multipleChoice) -> String {
     return "https://opentdb.com/api.php?amount=10&category=\(self.number)&difficulty=\(difficulty.rawValue)&type=\(type.rawValue)"
   }
 }
+
+

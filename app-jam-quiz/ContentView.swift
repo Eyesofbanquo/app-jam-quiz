@@ -32,6 +32,8 @@ struct ContentView: View {
   
   @State var launchResults = false
   
+  @State var launchQuiz = false
+  
   @Namespace var cardAnimation
   
   var body: some View {
@@ -58,31 +60,37 @@ struct ContentView: View {
           Text("Launch results")
         }
         .sheet(isPresented: $launchResults) {
-          Results()
+          Results(showResults: Binding<Bool>(
+                    get: { return false}, set: { _ in }),
+                  selectedCard: Binding<CardContent?>(get: { return nil }, set: {_ in }),
+                  resultsData: Binding<[Int : Bool]>(
+                      get: {
+                        return [0: false, 1: true, 2: false, 3: true, 4: false, 5: true, 6: false, 7: true, 8: false, 9: true]
+                      }, set: { _ in
+                        
+                      }))
+        }
+        #endif
+        
+        #if DEBUG
+        Button(action: {
+          self.launchQuiz.toggle()
+        }) {
+          Text("Launch Quiz")
+        }
+        .sheet(isPresented: $launchQuiz) {
+          Quiz(cardAnimation: cardAnimation, selectedCard: $selectedCard)
         }
         #endif
       }
       
       if let selectedCard = selectedCard {
         // Put this in its own detail view
-        Rectangle()
-          .foregroundColor(selectedCard.color)
+        Quiz(category: selectedCard.category,
+             cardAnimation: cardAnimation,
+             selectedCard: $selectedCard)
+          .transition(AnyTransition.asymmetric(insertion: .opacity, removal: .move(edge: .trailing)))
           .zIndex(1.0)
-          .opacity(cardDetailIsVisible ? 1.0 : 1.0)
-          .matchedGeometryEffect(id: "card",
-                                 in: cardAnimation,
-                                 properties: [.size], isSource: true)
-          .onAppear {
-            withAnimation {
-              cardDetailIsVisible = true
-            }
-          }
-          .onTapGesture {
-            withAnimation {
-              cardDetailIsVisible = false
-              self.selectedCard = nil
-            }
-          }
       }
     }.onAppear {
       withAnimation(Animation.easeOut(duration: 0.2)) {
