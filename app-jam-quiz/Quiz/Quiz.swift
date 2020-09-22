@@ -131,6 +131,9 @@ struct Quiz: View {
             .frame(height: UIScreen.main.bounds.height * 0.2)
             .overlay(VStack {
               Spacer()
+              if instantKey {
+                Spacer()
+              }
               HStack {
                 Text(category.rawValue)
                   .font(.largeTitle)
@@ -264,21 +267,18 @@ struct Quiz: View {
       grade(answerChoice: content, at: idx)
       setNextQuestion()
     }) {
-      GroupBox(label: HStack {
-        Spacer()
+      GroupBox(label: HStack(alignment: .center) {
         Text(label)
           .lineLimit(nil)
           .padding(12.0)
           .background(Color.red)
           .clipShape(Circle())
+        Text("\(content)")
+          .foregroundColor(Color(.label))
+          .equal($equalHeight)
         Spacer()
       }, content: {
-        VStack {
-          Text("\(content)")
-            .foregroundColor(Color(.label))
-            .equal($equalHeight)
-          Spacer()
-        }
+
       })
     }
     
@@ -298,11 +298,14 @@ struct Quiz: View {
     quizTitleBinding.wrappedValue = question.question
 
     return GroupBox(label: Text(quizTitleBinding.wrappedValue), content: {
-      LazyVGrid(columns: columns, spacing: 10) {
+      LazyVStack(alignment: .leading) {
         ForEach((0..<question.total), id: \.self) { idx in
           QuizButton(label: Self.AnswerLabels[idx], content: question.randomizedQuestions[idx], idx: idx)
         }
       }
+//      LazyVGrid(columns: columns, spacing: 10) {
+//
+//      }
       
     })
     .padding()
