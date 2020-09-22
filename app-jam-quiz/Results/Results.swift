@@ -32,6 +32,8 @@ struct Results: View {
   
   var category: Category = .books
   
+  @Binding var showResults: Bool
+  @Binding var selectedCard: CardContent?
   @Binding var resultsData: [Int: Bool]
   
   var body: some View {
@@ -105,11 +107,13 @@ struct Results: View {
           Spacer()
         }
         .navigationBarItems(trailing: Button(action: {
+          selectedCard = nil
           presentationMode.wrappedValue.dismiss()
         }) {
           Image(systemName: "xmark")
             .font(.title)
             .foregroundColor(Color(.label))
+            .clipShape(Rectangle())
         })
         .navigationTitle(Text("Results"))
         .padding(.horizontal)
@@ -136,7 +140,10 @@ struct Results_Previews: PreviewProvider {
   
   static var previews: some View {
     Previewer {
-      Results(resultsData: Binding<[Int : Bool]>(
+      Results(showResults: Binding<Bool>(
+                get: { return false}, set: { _ in }),
+              selectedCard: Binding<CardContent?>(get: { return nil }, set: {_ in }),
+              resultsData: Binding<[Int : Bool]>(
                   get: {
                     return [0: false, 1: true, 2: false, 3: true, 4: false, 5: true, 6: false, 7: true, 8: false, 9: true]
                   }, set: { _ in

@@ -50,9 +50,7 @@ struct Onboarding: View {
             .foregroundColor(.white)
             .contentShape(Rectangle())
         }
-        
-        
-        
+        .padding(.bottom)
         
         Spacer()
           .frame(height: 8.0)

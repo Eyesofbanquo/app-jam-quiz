@@ -66,6 +66,10 @@ struct Quiz: View {
   
   @ObservedObject private var network = Network()
   
+  var cardAnimation: Namespace.ID
+  
+  @Binding var selectedCard: CardContent?
+  
   @State private var showResults = false
   
   private static var AnswerLabels: [String] = [
@@ -74,26 +78,93 @@ struct Quiz: View {
   
   var body: some View {
     ZStack {
-      Color(category.colorName)
+      Color(.systemBackground)
         .edgesIgnoringSafeArea(.all)
+        .matchedGeometryEffect(id: "card",
+                               in: cardAnimation,
+                               properties: [.size], isSource: true)
       
-      VStack(alignment: .leading) {
-        Text("Name")
-          .padding(.horizontal)
+      VStack() {
+
+        Spacer()
+          .frame(height: 8.0)
+
+        
+        VStack {
+          Rectangle()
+            .foregroundColor(Color(category.colorName))
+            .frame(height: UIScreen.main.bounds.height * 0.2)
+            .overlay(VStack {
+              HStack {
+                Text(category.rawValue)
+                  .font(.largeTitle)
+                  .bold()
+                  .foregroundColor(Color(.black))
+                Spacer()
+                Text("Leave Quiz")
+              }
+              
+              HStack {
+                Image(systemName: "heart.fill")
+                  .padding(.trailing)
+                  .foregroundColor(.red)
+                ProgressView()
+                  .progressViewStyle(LinearProgressViewStyle(tint: .white))
+                Text("\(currentQuestion)/\(10)")
+                  .font(.body)
+                  .padding(.leading)
+                  .foregroundColor( { () -> Color in
+                    switch (currentQuestion) {
+                      case (0..<4): return Color.white
+                      case (4..<7): return Color.orange
+                      default: return Color.green
+                    }
+                  }())
+              }
+              .padding()
+              Spacer()
+            }.padding())
+          if questions.count > 0  {
+            QuizContent(question: questions[currentQuestion])
+              .animation(.default)
+          }
+        }
         
         if questions.count == 0 {
+          Spacer()
           ProgressView()
             .scaleEffect(1.5)
             .progressViewStyle(CircularProgressViewStyle(tint: Color.white))
           
-        } else {
-          QuizContent(question: questions[currentQuestion])
-            .animation(.default)
         }
+        
+        
+        Spacer()
+        
+        HStack {
+          Spacer()
+          Button(action: {
+            withAnimation {
+              selectedCard = nil
+            }
+          }) {
+            Text("Leave")
+          }
+          .foregroundColor(Color(.label))
+          Spacer()
+        }
+        
+        Color(category.colorName)
+          .frame(height: UIScreen.main.bounds.height * 0.05)
+          .edgesIgnoringSafeArea(.bottom)
+          .opacity(0.2)
+        
       }
       
       if showResults {
         Results(category: category,
+                showResults: $showResults,
+                selectedCard: $selectedCard,
                 resultsData: $questionsAnswered)
           .transition(.move(edge: .trailing))
           .animation(.default)
@@ -112,13 +183,14 @@ struct Quiz: View {
       return
     }
     
+    equalHeight = nil
     currentQuestion += 1
   }
   
   private func grade(
                      answerChoice choice: String,
                      at idx: Int) {
-    questionsAnswered[currentQuestion] = questions[idx].correctAnswer == choice
+    questionsAnswered[currentQuestion] = questions[currentQuestion].correctAnswer == choice
   }
   
   private func QuizButton(label: String,
@@ -132,18 +204,17 @@ struct Quiz: View {
         Spacer()
         Text(label)
           .lineLimit(nil)
-          .padding()
+          .padding(12.0)
           .background(Color.red)
           .clipShape(Circle())
         Spacer()
       }, content: {
         VStack {
           Text("\(content)")
-            .multilineTextAlignment(.center)
+            .foregroundColor(Color(.label))
             .equal($equalHeight)
           Spacer()
         }
-        
       })
     }
     
@@ -160,17 +231,21 @@ struct Quiz: View {
           QuizButton(label: Self.AnswerLabels[idx], content: question.randomizedQuestions[idx], idx: idx)
         }
       }
+      
     })
     .padding()
   }
 }
 
 struct Quiz_Previews: PreviewProvider {
+  @Namespace static var id
   static var previews: some View {
-    Quiz(category: Category.allCases.first!, questions: [
-      QuizQuestion(difficulty: "easy", question: "How old am I", correctAnswer: "12", incorrectAnswers: ["1", "2", "3"]),
-      QuizQuestion(difficulty: "easy", question: "How old are U", correctAnswer: "12", incorrectAnswers: ["1", "2", "3"])
-    ])
+    Previewer {
+      Quiz(category: Category.allCases.first!, questions: [
+        QuizQuestion(difficulty: "easy", question: "How old am I", correctAnswer: "12", incorrectAnswers: ["1", "2", "3"]),
+        QuizQuestion(difficulty: "easy", question: "How old are U", correctAnswer: "12", incorrectAnswers: ["1", "2", "3"])
+      ], cardAnimation: id, selectedCard: Binding<CardContent?>(get: { return nil }, set: {_ in }))
+    }
   }
 }
 
