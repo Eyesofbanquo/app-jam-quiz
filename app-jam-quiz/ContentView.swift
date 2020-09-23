@@ -119,11 +119,14 @@ struct ContentView: View {
   private var Background: some View {
     Rectangle()
       .edgesIgnoringSafeArea(.all)
-      .setColorTheme(.primary)
+      .foregroundColor(colorScheme == .dark ? Color(.black) : Color(.white))
   }
   
   private var GearIcon: some View {
     Button(action: {
+      let impact = UIImpactFeedbackGenerator(style: .medium)
+      impact.prepare()
+      impact.impactOccurred()
       self.launchSettings = true
 
     }) {
@@ -141,21 +144,6 @@ struct ContentView: View {
     .padding(.vertical)
     .contentShape(Rectangle())
 
-    
-//    Image(systemName: "gear")
-//      .font(.title)
-//      .foregroundColor(Color(.label))
-//      .padding()
-//      .scaleEffect(rotateSettingsIcon ? 1.0 : 0.01)
-//      .rotationEffect(rotateSettingsIcon ? .degrees(360) : .degrees(0))
-//      .onTapGesture {
-//        print("tapped")
-//        self.launchSettings = true
-//      }
-//      .contentShape(Circle())
-//      .sheet(isPresented: $launchSettings, content: {
-//        Settings()
-//      })
   }
   private func complimentConverter(_ theme: ColorTheme) -> ColorTheme {
     theme.compliment(colorScheme: colorScheme)

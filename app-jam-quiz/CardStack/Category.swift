@@ -74,9 +74,9 @@ enum Category: String, CaseIterable {
         """
 A wise man once said there's nothing more fun than playing video games. A wise app once said: "Tap on me to see if you really know which wise man said that."
 """
-      case .books: return "Guards! Guards! Do you know where that line is from? Or is it a title? You do? Well I have more questions for you so why don't you tap on me for more of the kind!"
+      case .books: return "Guards! Guards! Do you know where that line is from? Or is it a title?  Well I have more questions for you so why don't you tap on me for more of the kind!"
       case .movies: return "Did you know that you should know if your time machine works before you flipped the switch? Well that's what a movie told me. I forgot the name of it...Could you help me remember?"
-      case .music: return "Welcome to the hotel of cali-Qizzo. This card is such a lovely place to match your lovely face. Tap in for more."
+      case .music: return "Welcome to the hotel of Cali-Qizzo. This card is such a lovely place (such a lovely place) to match a lovely face. Tap in for more."
     }
   }
   

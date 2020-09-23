@@ -125,56 +125,52 @@ struct Quiz: View {
       
       VStack() {
         VStack {
-          
-          Rectangle()
-            .foregroundColor(Color(category.colorName))
-            .frame(height: UIScreen.main.bounds.height * 0.2)
-            .overlay(VStack {
+          VStack {
+            HStack {
+              Text(category.rawValue)
+                .font(.largeTitle)
+                .bold()
+                .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
               Spacer()
-              if instantKey {
-                Spacer()
-              }
-              HStack {
-                Text(category.rawValue)
-                  .font(.largeTitle)
-                  .bold()
+              Button(action: {
+                let impact = UIImpactFeedbackGenerator(style: .medium)
+                impact.prepare()
+                impact.impactOccurred()
+                withAnimation {
+                  selectedCard = nil
+                }
+              }) {
+                Text("Leave Quiz")
                   .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
-                Spacer()
-                Button(action: {
-                  withAnimation {
-                    selectedCard = nil
-                  }
-                }) {
-                  Text("Leave Quiz")
-                    .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
-                }
-                
-              }
-              if instantKey {
-                HStack {
-                  if false {
-                    Image("fitness")
-                      .renderingMode(.template)
-                      .foregroundColor(.green)
-                  }
-                  
-                  if streak > personalizedStreak {
-                    Image(systemName: "flame.fill")
-                      .padding(.trailing)
-                      .foregroundColor(.red)
-                  }
-                  ProgressView(value: (Double(currentQuestion) / Double(10)))
-                    .progressViewStyle(LinearProgressViewStyle(tint: colorPicker.textColor(for: category, forScheme: colorScheme)))
-                  Text("\(correctAnswers, specifier: "%.0f")/\(10)")
-                    .font(.body)
-                    .padding(.leading)
-                    .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
-                }
-                .padding()
               }
               
-              Spacer()
-            }.padding([.leading, .trailing]))
+            }
+            
+            if instantKey {
+              HStack {
+                if false {
+                  Image("fitness")
+                    .renderingMode(.template)
+                    .foregroundColor(.green)
+                }
+                
+                if streak > personalizedStreak {
+                  Image(systemName: "flame.fill")
+                    .padding(.trailing)
+                    .foregroundColor(.red)
+                }
+                ProgressView(value: (Double(currentQuestion) / Double(10)))
+                  .progressViewStyle(LinearProgressViewStyle(tint: colorPicker.textColor(for: category, forScheme: colorScheme)))
+                Text("\(correctAnswers, specifier: "%.0f")/\(10)")
+                  .font(.body)
+                  .padding(.leading)
+                  .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
+              }
+              .padding()
+            }
+          }
+          .padding()
+          .background(Color(category.colorName).edgesIgnoringSafeArea(.top))
           
           if questions.count > 0  {
             QuizContent(question: questions[currentQuestion])
@@ -194,6 +190,7 @@ struct Quiz: View {
         Spacer()
         
         Color(category.colorName)
+          .edgesIgnoringSafeArea(.bottom)
           .frame(height: UIScreen.main.bounds.height * 0.05)
           .opacity(0.2)
         
@@ -215,7 +212,6 @@ struct Quiz: View {
                                               difficulty: QuizDifficulty.getDifficulty(forIndex: difficultyIndex))
         .assign(to: \.questions, on: self)
     })
-    .edgesIgnoringSafeArea([.top, .bottom])
   }
   
   private var HeaderOverlay: some View {
@@ -260,31 +256,6 @@ struct Quiz: View {
     }
   }
   
-  private func QuizButton(label: String,
-                          content: String,
-                          idx: Int) -> some View {
-    Button(action: {
-      grade(answerChoice: content, at: idx)
-      setNextQuestion()
-    }) {
-      GroupBox(label: HStack(alignment: .center) {
-        Text(label)
-          .lineLimit(nil)
-          .padding(12.0)
-          .background(Color.red)
-          .clipShape(Circle())
-        Text("\(content)")
-          .foregroundColor(Color(.label))
-          .equal($equalHeight)
-        Spacer()
-      }, content: {
-
-      })
-    }
-    
-    .foregroundColor(.black)
-  }
-  
   private func QuizContent(question: QuizQuestion) -> some View {
     var question = question
     question.randomized()
@@ -297,17 +268,20 @@ struct Quiz: View {
     })
     quizTitleBinding.wrappedValue = question.question
 
-    return GroupBox(label: Text(quizTitleBinding.wrappedValue), content: {
-      LazyVStack(alignment: .leading) {
-        ForEach((0..<question.total), id: \.self) { idx in
-          QuizButton(label: Self.AnswerLabels[idx], content: question.randomizedQuestions[idx], idx: idx)
+    return ScrollView(showsIndicators: false) {
+      GroupBox(label: Text(quizTitleBinding.wrappedValue), content: {
+        LazyVStack(alignment: .leading) {
+          ForEach((0..<question.total), id: \.self) { idx in
+            QuizButton(label: Self.AnswerLabels[idx], content: question.randomizedQuestions[idx]) {
+              grade(answerChoice: question.randomizedQuestions[idx], at: idx)
+            } next: {
+              setNextQuestion()
+            }
+          }
         }
-      }
-//      LazyVGrid(columns: columns, spacing: 10) {
-//
-//      }
-      
-    })
+        
+      })
+    }
     .padding()
   }
 }

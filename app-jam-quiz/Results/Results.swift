@@ -31,7 +31,7 @@ class Grader: ObservableObject {
     return resultsData.filter { $0.value == false }.count
   }
   func totalScore(in resultsData: [Int: Bool]) -> Float {
-    ceil(Float(numberCorrect(in: resultsData)) / Float(resultsData.count) * 100.0)
+    floor(Float(numberCorrect(in: resultsData)) / Float(resultsData.count) * 100.0)
   }
   
 }
@@ -85,8 +85,8 @@ struct Results: View {
                  tint: Color(.systemOrange))
             
             Data(title: "Time Spent",
-                 metric: "\(grader.numberIncorrect(in: resultsData))",
-                 subtitle: "minutes",
+                 metric: "Coming",
+                 subtitle: "soon",
                  imageName: "clock",
                  tint: Color(.systemBlue))
           }

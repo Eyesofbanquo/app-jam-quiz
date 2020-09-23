@@ -32,32 +32,36 @@ struct CategoryList: View {
             .foregroundColor(card.color)
             .frame(height: geo.size.height * 0.35)
             .overlay(
-              HStack {
-                VStack(alignment: .leading, spacing: 8.0) {
-                  Text(card.category.name)
-                    .font(.largeTitle)
-                    .bold()
-                  VStack(alignment: .leading) {
-                    HStack(spacing: 2.0) {
-                      HStack(spacing: 1.0) {
-                        Image(systemName: "lightbulb.fill")
-                          .font(.subheadline)
-                        Text("Test your knowledge")
-                          .font(.subheadline)
-                          .bold()
+              ScrollView(.vertical, showsIndicators: false) {
+                HStack {
+                  VStack(alignment: .leading, spacing: 8.0) {
+                    Text(card.category.name)
+                      .font(.largeTitle)
+                      .bold()
+                    VStack(alignment: .leading) {
+                      HStack(spacing: 2.0) {
+                        HStack(spacing: 1.0) {
+                          Image(systemName: "lightbulb.fill")
+                            .font(.subheadline)
+                          Text("Test your knowledge")
+                            .font(.subheadline)
+                            .bold()
+                        }
+                        .foregroundColor(Color(.systemYellow))
                       }
-                      .foregroundColor(Color(.systemYellow))
+                      Text(card.category.description)
+                        .font(.subheadline)
+                      
                     }
-                    Text(card.category.description)
-                      .font(.subheadline)
-                  }
-                  
-                  
+                    
+                    
+                    Spacer()
+                  }.padding()
                   Spacer()
-                }.padding()
-                Spacer()
-                
-              }.foregroundColor(.white))
+                  
+                }.foregroundColor(.white)
+              }
+              )
         }
       })
       .clipped()
