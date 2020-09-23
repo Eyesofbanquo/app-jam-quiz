@@ -15,6 +15,7 @@
 		339D330D2518858C000BD15B /* Results.swift in Sources */ = {isa = PBXBuildFile; fileRef = 339D330C2518858C000BD15B /* Results.swift */; };
 		339D33142518B276000BD15B /* Quiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 339D33132518B276000BD15B /* Quiz.swift */; };
 		339D33182518B691000BD15B /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 339D33172518B691000BD15B /* Network.swift */; };
+		33B611BC251BE45300232DE5 /* Navbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33B611BB251BE45300232DE5 /* Navbar.swift */; };
 		33C5435E25167DF200B2C316 /* app_jam_quizApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C5435D25167DF200B2C316 /* app_jam_quizApp.swift */; };
 		33C5436025167DF200B2C316 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C5435F25167DF200B2C316 /* ContentView.swift */; };
 		33C5436225167DF400B2C316 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 33C5436125167DF400B2C316 /* Assets.xcassets */; };
@@ -38,6 +39,7 @@
 		339D330C2518858C000BD15B /* Results.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Results.swift; sourceTree = "<group>"; };
 		339D33132518B276000BD15B /* Quiz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quiz.swift; sourceTree = "<group>"; };
 		339D33172518B691000BD15B /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
+		33B611BB251BE45300232DE5 /* Navbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navbar.swift; sourceTree = "<group>"; };
 		33C5435A25167DF200B2C316 /* app-jam-quiz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "app-jam-quiz.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		33C5435D25167DF200B2C316 /* app_jam_quizApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = app_jam_quizApp.swift; sourceTree = "<group>"; };
 		33C5435F25167DF200B2C316 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -91,6 +93,14 @@
 			path = Quiz;
 			sourceTree = "<group>";
 		};
+		33B611BA251BE44600232DE5 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				33B611BB251BE45300232DE5 /* Navbar.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
 		33C5435125167DF200B2C316 = {
 			isa = PBXGroup;
 			children = (
@@ -110,6 +120,7 @@
 		33C5435C25167DF200B2C316 /* app-jam-quiz */ = {
 			isa = PBXGroup;
 			children = (
+				33B611BA251BE44600232DE5 /* Components */,
 				339D33122518B270000BD15B /* Quiz */,
 				339D330B25188584000BD15B /* Results */,
 				33416D6F25183839000E5B2E /* CardStack */,
@@ -251,6 +262,7 @@
 				33C5438525169E5700B2C316 /* Previewer.swift in Sources */,
 				339D330D2518858C000BD15B /* Results.swift in Sources */,
 				33C543742516887400B2C316 /* AppStorageKeys.swift in Sources */,
+				33B611BC251BE45300232DE5 /* Navbar.swift in Sources */,
 				33C5437E25169A3500B2C316 /* Theme.swift in Sources */,
 				33DCA3C6251A91100096B1E1 /* QuizButton.swift in Sources */,
 				339D33142518B276000BD15B /* Quiz.swift in Sources */,
