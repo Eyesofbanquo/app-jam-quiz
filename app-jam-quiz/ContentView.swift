@@ -22,6 +22,8 @@ struct ContentView: View {
     
   @State var launchSettings: Bool = false
   
+  @State var launchInfo: Bool = false
+  
   @State var selectedCard: CardContent?
 
   @Namespace var cardAnimation
@@ -64,10 +66,20 @@ struct ContentView_Previews: PreviewProvider {
 
 extension ContentView {
   private var Title: some View {
-    Text("Quizzo")
-      .font(.largeTitle)
-      .bold()
-      .foregroundColor(Color(.label))
+    Button(action: {
+      launchInfo.toggle()
+      let impact = UIImpactFeedbackGenerator(style: .medium)
+      impact.prepare()
+      impact.impactOccurred()
+    }) {
+      Text("Quizzo")
+        .font(.largeTitle)
+        .bold()
+        .foregroundColor(Color(.label))
+    }
+    .sheet(isPresented: $launchInfo, content: {
+      InfoView()
+    })
   }
   
   private var Background: some View {

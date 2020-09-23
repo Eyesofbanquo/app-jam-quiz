@@ -5,33 +5,6 @@
 //  Created by Markim Shaw on 9/21/20.
 //
 
-extension String {
-  func convertHtml() -> NSAttributedString {
-    guard let data = data(using: .utf8) else { return NSAttributedString() }
-    
-    if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil) {
-      return attributedString
-    } else {
-      return NSAttributedString()
-    }
-  }
-}
-
-class Converter: ObservableObject {
-  
-  @Published var convertedString: NSAttributedString?
-  
-  func convert(string: String) {
-    let pub = Future<NSAttributedString?, Never> { seal in
-      DispatchQueue.main.async {
-        seal(.success(string.convertHtml()))
-      }
-
-    }
-    .receive(on: DispatchQueue.main)
-    .assign(to: \.convertedString, on: self)
-  }
-}
 
 struct EqualHeightPreferenceKey: PreferenceKey {
   typealias Value = CGFloat
@@ -75,9 +48,7 @@ struct Quiz: View {
   @AppStorage(AppStorageKeys.prefferedDifficulty.key) var difficultyIndex: Int = 1
   
   @AppStorage(AppStorageKeys.instant.key) var instantKey: Bool = false
-  
-  @StateObject var converter: Converter = Converter()
-  
+    
   var category: Category = .books
   
   var columns: [GridItem] = Array(repeating: .init(.flexible(),
@@ -108,6 +79,7 @@ struct Quiz: View {
   
   @State private var streak: Int = 0
   @State private var correctAnswers: Double = 0
+  @State private var isCorrect: Bool?
   
   private static var AnswerLabels: [String] = [
   "A", "B", "C", "D"
@@ -146,31 +118,36 @@ struct Quiz: View {
               
             }
             
-            if instantKey {
-              HStack {
-                if false {
-                  Image("fitness")
-                    .renderingMode(.template)
-                    .foregroundColor(.green)
+            if true {
+              VStack {
+                Group {
+                  if let isCorrect = isCorrect, isCorrect == true {
+                    Text("Correct!")
+                  }
+                  
+                  if let isCorrect = isCorrect, isCorrect == false {
+                    Text("Incorrect!")
+                  }
                 }
+                .font(.headline)
+                .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
+                .padding(.top)
                 
-                if streak > personalizedStreak {
-                  Image(systemName: "flame.fill")
-                    .padding(.trailing)
-                    .foregroundColor(.red)
+                HStack {
+                  ProgressView(value: (Double(currentQuestion) / Double(10)))
+                    .progressViewStyle(LinearProgressViewStyle(tint: colorPicker.textColor(for: category, forScheme: colorScheme)))
+                  Text("\(correctAnswers, specifier: "%.0f")/\(10)")
+                    .font(.body)
+                    .padding(.leading)
+                    .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
                 }
-                ProgressView(value: (Double(currentQuestion) / Double(10)))
-                  .progressViewStyle(LinearProgressViewStyle(tint: colorPicker.textColor(for: category, forScheme: colorScheme)))
-                Text("\(correctAnswers, specifier: "%.0f")/\(10)")
-                  .font(.body)
-                  .padding(.leading)
-                  .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
+                .padding()
               }
-              .padding()
             }
           }
           .padding()
           .background(Color(category.colorName).edgesIgnoringSafeArea(.top))
+          
           
           if questions.count > 0  {
             QuizContent(question: questions[currentQuestion])
@@ -228,8 +205,8 @@ struct Quiz: View {
       return
     }
     
-    equalHeight = nil
     currentQuestion += 1
+    equalHeight = nil
   }
   
   private func grade(
@@ -237,6 +214,7 @@ struct Quiz: View {
                      at idx: Int) {
     let isCorrect = questions[currentQuestion].correctAnswer == choice
     questionsAnswered[currentQuestion] = isCorrect
+    self.isCorrect = isCorrect
     
     withAnimation {
       if isCorrect {
@@ -277,7 +255,10 @@ struct Quiz: View {
             } next: {
               setNextQuestion()
             }
+            .animation(.none)
           }
+          .layoutPriority(1.0)
+          
         }
         
       })
