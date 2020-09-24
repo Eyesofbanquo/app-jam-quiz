@@ -124,21 +124,32 @@ struct Quiz: View {
               
             }
             
-            if true {
+            if instantKey {
               VStack {
                 Group {
                   if isCorrect == true {
                     Text("Correct!")
+                      .font(.headline) + Text("\(Self.correct_emoji.randomElement()!)")
                   }
                   
                   if isCorrect == false {
                     Text("Incorrect!")
+                      .font(.headline) + Text("\(Self.incorrect_emoji.randomElement()!)")
                   }
+                  
                 }
                 .opacity(answeredQuestion ? 1.0 : 0.0)
                 .font(.headline)
                 .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
                 .padding(.top)
+                .onAppear {
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    withAnimation {
+                      self.answeredQuestion = false
+                      self.isCorrect = nil
+                    }
+                  }
+                }
                 
                 HStack {
                   ProgressView(value: (Double(currentQuestion) / Double(10)))
@@ -222,12 +233,15 @@ struct Quiz: View {
     
     self.isCorrect = isCorrect
     
-    withAnimation(Animation.easeOut(duration: 0.2)) {
-      answeredQuestion = true
-    }
-    withAnimation(Animation.easeIn(duration: 0).delay(1.0)) {
-      answeredQuestion = false
-    }
+    answeredQuestion = true
+    
+//    withAnimation(Animation.easeOut(duration: 0.2)) {
+//
+//
+//    }
+//    withAnimation(Animation.default.delay(10.0)) {
+//      answeredQuestion = false
+//    }
     
     withAnimation {
       if isCorrect {
@@ -249,7 +263,7 @@ struct Quiz: View {
   
   private func QuizContent(question: QuizQuestionEntity) -> some View {
     
-    var quizTitleBinding =  Binding<String>(get: {
+    let quizTitleBinding =  Binding<String>(get: {
       return quizTitle
     }, set: { val in
       DispatchQueue.main.async {

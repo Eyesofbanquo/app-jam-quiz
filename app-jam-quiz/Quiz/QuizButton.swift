@@ -49,10 +49,11 @@ struct QuizButton: View {
           .clipShape(Circle())
         Text(quizTitleBinding.wrappedValue)
           .foregroundColor(Color(.label))
+          .layoutPriority(1)
         Spacer()
       }, content: {
         
-      })
+      }).groupBoxStyle(DefaultGroupBoxStyle())
     }
     
     .foregroundColor(.black)
