@@ -42,6 +42,11 @@ import SwiftUI
 import UIKit
 
 struct Quiz: View {
+  
+  private static var correct_emoji: [String] = [
+  "😃", "😁", "😍", "🙃", "😁"]
+  private static var incorrect_emoji: [String] = [
+  "😅", "😕", "😭", "🥺", "😥"]
     
   @Environment(\.colorScheme) var colorScheme
   
@@ -58,7 +63,7 @@ struct Quiz: View {
   
   @State var cancellable: AnyCancellable?
   @State var currentQuestion: Int = 0
-  @State var questions: [QuizQuestion] = []
+  @State var questions: [QuizQuestionEntity] = []
   
   @State var questionsAnswered: [Int: Bool] = [:]
   
@@ -80,6 +85,7 @@ struct Quiz: View {
   @State private var streak: Int = 0
   @State private var correctAnswers: Double = 0
   @State private var isCorrect: Bool?
+  @State private var answeredQuestion: Bool = false
   
   private static var AnswerLabels: [String] = [
   "A", "B", "C", "D"
@@ -121,14 +127,15 @@ struct Quiz: View {
             if true {
               VStack {
                 Group {
-                  if let isCorrect = isCorrect, isCorrect == true {
+                  if isCorrect == true {
                     Text("Correct!")
                   }
                   
-                  if let isCorrect = isCorrect, isCorrect == false {
+                  if isCorrect == false {
                     Text("Incorrect!")
                   }
                 }
+                .opacity(answeredQuestion ? 1.0 : 0.0)
                 .font(.headline)
                 .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
                 .padding(.top)
@@ -136,10 +143,6 @@ struct Quiz: View {
                 HStack {
                   ProgressView(value: (Double(currentQuestion) / Double(10)))
                     .progressViewStyle(LinearProgressViewStyle(tint: colorPicker.textColor(for: category, forScheme: colorScheme)))
-                  Text("\(correctAnswers, specifier: "%.0f")/\(10)")
-                    .font(.body)
-                    .padding(.leading)
-                    .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
                 }
                 .padding()
               }
@@ -187,6 +190,7 @@ struct Quiz: View {
     .onAppear(perform: {
       cancellable = network.retrieveQuestions(forCategory: category,
                                               difficulty: QuizDifficulty.getDifficulty(forIndex: difficultyIndex))
+        .map { $0.map { QuizQuestionEntity(from: $0) } }
         .assign(to: \.questions, on: self)
     })
   }
@@ -214,7 +218,16 @@ struct Quiz: View {
                      at idx: Int) {
     let isCorrect = questions[currentQuestion].correctAnswer == choice
     questionsAnswered[currentQuestion] = isCorrect
+    
+    
     self.isCorrect = isCorrect
+    
+    withAnimation(Animation.easeOut(duration: 0.2)) {
+      answeredQuestion = true
+    }
+    withAnimation(Animation.easeIn(duration: 0).delay(1.0)) {
+      answeredQuestion = false
+    }
     
     withAnimation {
       if isCorrect {
@@ -234,9 +247,8 @@ struct Quiz: View {
     }
   }
   
-  private func QuizContent(question: QuizQuestion) -> some View {
-    var question = question
-    question.randomized()
+  private func QuizContent(question: QuizQuestionEntity) -> some View {
+    
     var quizTitleBinding =  Binding<String>(get: {
       return quizTitle
     }, set: { val in
@@ -244,21 +256,18 @@ struct Quiz: View {
         quizTitle = val.convertHtml().string
       }
     })
-    quizTitleBinding.wrappedValue = question.question
+    quizTitleBinding.wrappedValue = questions[currentQuestion].question
 
     return ScrollView(showsIndicators: false) {
       GroupBox(label: Text(quizTitleBinding.wrappedValue), content: {
         LazyVStack(alignment: .leading) {
           ForEach((0..<question.total), id: \.self) { idx in
-            QuizButton(label: Self.AnswerLabels[idx], content: question.randomizedQuestions[idx]) {
-              grade(answerChoice: question.randomizedQuestions[idx], at: idx)
+            QuizButton(label: Self.AnswerLabels[idx], content: questions[currentQuestion].randomizedQuestions[idx]) {
+              grade(answerChoice: questions[currentQuestion].randomizedQuestions[idx], at: idx)
             } next: {
               setNextQuestion()
             }
-            .animation(.none)
           }
-          .layoutPriority(1.0)
-          
         }
         
       })
@@ -270,11 +279,10 @@ struct Quiz: View {
 struct Quiz_Previews: PreviewProvider {
   @Namespace static var id
   static var previews: some View {
-    Previewer {
-      Quiz(category: Category.allCases.first!, questions: [
-        QuizQuestion(difficulty: "easy", question: "How old am I", correctAnswer: "12", incorrectAnswers: ["1", "2", "3"]),
-        QuizQuestion(difficulty: "easy", question: "How old are U", correctAnswer: "12", incorrectAnswers: ["1", "2", "3"])
-      ], cardAnimation: id, selectedCard: Binding<CardContent?>(get: { return nil }, set: {_ in }))
+    let questions = [QuizQuestion(difficulty: "easy", question: "How old am I", correctAnswer: "12", incorrectAnswers: ["1", "2", "3"]),
+                     QuizQuestion(difficulty: "easy", question: "How old are U", correctAnswer: "12", incorrectAnswers: ["1", "2", "3"])]
+    return Previewer {
+      Quiz(category: Category.allCases.first!, questions: questions.map { QuizQuestionEntity(from: $0) }, cardAnimation: id, selectedCard: Binding<CardContent?>(get: { return nil }, set: {_ in }))
     }
   }
 }
