@@ -38,6 +38,31 @@ struct QuizQuestion: Decodable {
   }
 }
 
+class QuizQuestionEntity {
+  var difficulty: String
+  var question: String
+  var correctAnswer: String
+  var incorrectAnswers: [String]
+  var randomizedQuestions: [String] = []
+  
+  var total: Int {
+    return 1 + incorrectAnswers.count
+  }
+  
+  init(from quiz: QuizQuestion) {
+    self.difficulty = quiz.difficulty
+    self.question = quiz.question
+    self.correctAnswer = quiz.correctAnswer
+    self.incorrectAnswers = quiz.incorrectAnswers
+    
+    var array: [String] = []
+    array.append(contentsOf: incorrectAnswers)
+    array.append(correctAnswer)
+    
+    randomizedQuestions = array.shuffled()
+  }
+}
+
 class Network: ObservableObject {
   
   func retrieveQuestions(forCategory category: Category,

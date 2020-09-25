@@ -18,24 +18,14 @@ struct ContentView: View {
   
   @AppStorage(AppStorageKeys.instant.key) var instantKey: Bool = false
   
-  let cards: [CardContent] = Category.allCases.map { CardContent(category: $0)}
-  
-  @State var animateBubble: Bool = false
-  
-  @State var rotateSettingsIcon: Bool = false
-  
-  @State var bubbleTapped: Bool = false
-  
+  let cards: [CardContent] = Category.allCases.map { CardContent(category: $0) }
+    
   @State var launchSettings: Bool = false
   
+  @State var launchInfo: Bool = false
+  
   @State var selectedCard: CardContent?
-  
-  @State var cardDetailIsVisible = false
-  
-  @State var launchResults = false
-  
-  @State var launchQuiz = false
-  
+
   @Namespace var cardAnimation
   
   var body: some View {
@@ -47,106 +37,22 @@ struct ContentView: View {
       
       VStack(spacing: 0.0) {
         Spacer()
-        HStack {
-          Text("Quizzo")
-            .font(.largeTitle)
-            .bold()
-            .foregroundColor(Color(.label))
-          Spacer()
-          GearIcon
-        }
-        .padding(.horizontal)
-        
-        
+        Navbar(left: { Title }, right: { OptionsButton })
+          .padding(.horizontal)
         CategoryList(cards: cards, selectedCard: $selectedCard)
           .padding(.bottom)
-        
         Spacer()
           .frame(height: 8.0)
-        
-//        #if DEBUG
-//        Button(action: {
-//          self.launchResults.toggle()
-//        }) {
-//          Text("Launch results")
-//        }
-//        .sheet(isPresented: $launchResults) {
-//          Results(showResults: Binding<Bool>(
-//                    get: { return false}, set: { _ in }),
-//                  selectedCard: Binding<CardContent?>(get: { return nil }, set: {_ in }),
-//                  resultsData: Binding<[Int : Bool]>(
-//                      get: {
-//                        return [0: false, 1: true, 2: false, 3: true, 4: false, 5: true, 6: false, 7: true, 8: false, 9: true]
-//                      }, set: { _ in
-//
-//                      }), streak: Binding<Int>(get: { return 1}, set: { _ in }))
-//        }
-//        #endif
-//
-//        #if DEBUG
-//        Button(action: {
-//          self.launchQuiz.toggle()
-//        }) {
-//          Text("Launch Quiz")
-//        }
-//        .sheet(isPresented: $launchQuiz) {
-//          Quiz(cardAnimation: cardAnimation, selectedCard: $selectedCard)
-//        }
-//        #endif
       }
       
       if let selectedCard = selectedCard {
-        // Put this in its own detail view
         Quiz(category: selectedCard.category,
              cardAnimation: cardAnimation,
              selectedCard: $selectedCard)
           .transition(AnyTransition.asymmetric(insertion: .opacity, removal: .move(edge: .trailing)))
           .zIndex(1.0)
       }
-    }.onAppear {
-      withAnimation(Animation.easeOut(duration: 0.2)) {
-        self.animateBubble = true
-       
-      }
-      
-      withAnimation(Animation.easeInOut(duration: 0.4).delay(0.5)) {
-        self.rotateSettingsIcon = true
-      }
     }
-    
-  }
-  
-  private var Background: some View {
-    Rectangle()
-      .edgesIgnoringSafeArea(.all)
-      .foregroundColor(colorScheme == .dark ? Color(.black) : Color(.white))
-  }
-  
-  private var GearIcon: some View {
-    Button(action: {
-      let impact = UIImpactFeedbackGenerator(style: .medium)
-      impact.prepare()
-      impact.impactOccurred()
-      self.launchSettings = true
-
-    }) {
-      HStack(spacing: 8.0) {
-        Image(systemName: "gear")
-        Text("Options")
-          .font(.subheadline)
-          
-      }
-      .foregroundColor(Color(.label))
-    }
-    .sheet(isPresented: $launchSettings, content: {
-      Settings()
-    })
-    .padding(.vertical)
-    .contentShape(Rectangle())
-
-  }
-  private func complimentConverter(_ theme: ColorTheme) -> ColorTheme {
-    theme.compliment(colorScheme: colorScheme)
   }
 }
 
@@ -155,5 +61,54 @@ struct ContentView_Previews: PreviewProvider {
     Previewer {
       ContentView()
     }
+  }
+}
+
+extension ContentView {
+  private var Title: some View {
+    Button(action: {
+      launchInfo.toggle()
+      let impact = UIImpactFeedbackGenerator(style: .medium)
+      impact.prepare()
+      impact.impactOccurred()
+    }) {
+      Text("Quizzo")
+        .font(.largeTitle)
+        .bold()
+        .foregroundColor(Color(.label))
+    }
+    .sheet(isPresented: $launchInfo, content: {
+      InfoView()
+    })
+  }
+  
+  private var Background: some View {
+    Rectangle()
+      .edgesIgnoringSafeArea(.all)
+      .foregroundColor(colorScheme == .dark ? Color(.black) : Color(.white))
+  }
+  
+  private var OptionsButton: some View {
+    Button(action: {
+      let impact = UIImpactFeedbackGenerator(style: .medium)
+      impact.prepare()
+      impact.impactOccurred()
+      self.launchSettings = true
+      
+    }) {
+      HStack(spacing: 8.0) {
+        Image(systemName: "gear")
+        Text("Options")
+          .font(.subheadline)
+        
+      }
+      .foregroundColor(Color(.label))
+    }
+    .sheet(isPresented: $launchSettings, content: {
+      Settings()
+    })
+    .padding(.vertical)
+    .contentShape(Rectangle())
+    
   }
 }

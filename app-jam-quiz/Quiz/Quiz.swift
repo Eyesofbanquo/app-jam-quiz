@@ -5,33 +5,6 @@
 //  Created by Markim Shaw on 9/21/20.
 //
 
-extension String {
-  func convertHtml() -> NSAttributedString {
-    guard let data = data(using: .utf8) else { return NSAttributedString() }
-    
-    if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil) {
-      return attributedString
-    } else {
-      return NSAttributedString()
-    }
-  }
-}
-
-class Converter: ObservableObject {
-  
-  @Published var convertedString: NSAttributedString?
-  
-  func convert(string: String) {
-    let pub = Future<NSAttributedString?, Never> { seal in
-      DispatchQueue.main.async {
-        seal(.success(string.convertHtml()))
-      }
-
-    }
-    .receive(on: DispatchQueue.main)
-    .assign(to: \.convertedString, on: self)
-  }
-}
 
 struct EqualHeightPreferenceKey: PreferenceKey {
   typealias Value = CGFloat
@@ -69,15 +42,18 @@ import SwiftUI
 import UIKit
 
 struct Quiz: View {
+  
+  private static var correct_emoji: [String] = [
+  "😃", "😁", "😍", "🙃", "😁"]
+  private static var incorrect_emoji: [String] = [
+  "😅", "😕", "😭", "🥺", "😥"]
     
   @Environment(\.colorScheme) var colorScheme
   
   @AppStorage(AppStorageKeys.prefferedDifficulty.key) var difficultyIndex: Int = 1
   
   @AppStorage(AppStorageKeys.instant.key) var instantKey: Bool = false
-  
-  @StateObject var converter: Converter = Converter()
-  
+    
   var category: Category = .books
   
   var columns: [GridItem] = Array(repeating: .init(.flexible(),
@@ -87,7 +63,7 @@ struct Quiz: View {
   
   @State var cancellable: AnyCancellable?
   @State var currentQuestion: Int = 0
-  @State var questions: [QuizQuestion] = []
+  @State var questions: [QuizQuestionEntity] = []
   
   @State var questionsAnswered: [Int: Bool] = [:]
   
@@ -108,6 +84,8 @@ struct Quiz: View {
   
   @State private var streak: Int = 0
   @State private var correctAnswers: Double = 0
+  @State private var isCorrect: Bool?
+  @State private var answeredQuestion: Bool = false
   
   private static var AnswerLabels: [String] = [
   "A", "B", "C", "D"
@@ -147,30 +125,45 @@ struct Quiz: View {
             }
             
             if instantKey {
-              HStack {
-                if false {
-                  Image("fitness")
-                    .renderingMode(.template)
-                    .foregroundColor(.green)
+              VStack {
+                Group {
+                  if isCorrect == true {
+                    Text("Correct!")
+                      .font(.title)
+                      .bold()
+                  }
+                  
+                  if isCorrect == false {
+                    Text("Incorrect!")
+                      .font(.title)
+                      .bold()
+                  }
+                  
+                }
+                .opacity(answeredQuestion ? 1.0 : 0.0)
+                .font(.headline)
+                .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
+                .padding(.top)
+                .onAppear {
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    withAnimation {
+                      self.answeredQuestion = false
+                      self.isCorrect = nil
+                    }
+                  }
                 }
                 
-                if streak > personalizedStreak {
-                  Image(systemName: "flame.fill")
-                    .padding(.trailing)
-                    .foregroundColor(.red)
+                HStack {
+                  ProgressView(value: (Double(currentQuestion) / Double(10)))
+                    .progressViewStyle(LinearProgressViewStyle(tint: colorPicker.textColor(for: category, forScheme: colorScheme)))
                 }
-                ProgressView(value: (Double(currentQuestion) / Double(10)))
-                  .progressViewStyle(LinearProgressViewStyle(tint: colorPicker.textColor(for: category, forScheme: colorScheme)))
-                Text("\(correctAnswers, specifier: "%.0f")/\(10)")
-                  .font(.body)
-                  .padding(.leading)
-                  .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
+                .padding()
               }
-              .padding()
             }
           }
           .padding()
           .background(Color(category.colorName).edgesIgnoringSafeArea(.top))
+          
           
           if questions.count > 0  {
             QuizContent(question: questions[currentQuestion])
@@ -210,6 +203,7 @@ struct Quiz: View {
     .onAppear(perform: {
       cancellable = network.retrieveQuestions(forCategory: category,
                                               difficulty: QuizDifficulty.getDifficulty(forIndex: difficultyIndex))
+        .map { $0.map { QuizQuestionEntity(from: $0) } }
         .assign(to: \.questions, on: self)
     })
   }
@@ -228,8 +222,8 @@ struct Quiz: View {
       return
     }
     
-    equalHeight = nil
     currentQuestion += 1
+    equalHeight = nil
   }
   
   private func grade(
@@ -237,6 +231,11 @@ struct Quiz: View {
                      at idx: Int) {
     let isCorrect = questions[currentQuestion].correctAnswer == choice
     questionsAnswered[currentQuestion] = isCorrect
+    
+    
+    self.isCorrect = isCorrect
+    
+    answeredQuestion = true
     
     withAnimation {
       if isCorrect {
@@ -256,24 +255,23 @@ struct Quiz: View {
     }
   }
   
-  private func QuizContent(question: QuizQuestion) -> some View {
-    var question = question
-    question.randomized()
-    var quizTitleBinding =  Binding<String>(get: {
+  private func QuizContent(question: QuizQuestionEntity) -> some View {
+    
+    let quizTitleBinding =  Binding<String>(get: {
       return quizTitle
     }, set: { val in
       DispatchQueue.main.async {
         quizTitle = val.convertHtml().string
       }
     })
-    quizTitleBinding.wrappedValue = question.question
+    quizTitleBinding.wrappedValue = questions[currentQuestion].question
 
     return ScrollView(showsIndicators: false) {
       GroupBox(label: Text(quizTitleBinding.wrappedValue), content: {
         LazyVStack(alignment: .leading) {
           ForEach((0..<question.total), id: \.self) { idx in
-            QuizButton(label: Self.AnswerLabels[idx], content: question.randomizedQuestions[idx]) {
-              grade(answerChoice: question.randomizedQuestions[idx], at: idx)
+            QuizButton(label: Self.AnswerLabels[idx], content: questions[currentQuestion].randomizedQuestions[idx]) {
+              grade(answerChoice: questions[currentQuestion].randomizedQuestions[idx], at: idx)
             } next: {
               setNextQuestion()
             }
@@ -289,11 +287,10 @@ struct Quiz: View {
 struct Quiz_Previews: PreviewProvider {
   @Namespace static var id
   static var previews: some View {
-    Previewer {
-      Quiz(category: Category.allCases.first!, questions: [
-        QuizQuestion(difficulty: "easy", question: "How old am I", correctAnswer: "12", incorrectAnswers: ["1", "2", "3"]),
-        QuizQuestion(difficulty: "easy", question: "How old are U", correctAnswer: "12", incorrectAnswers: ["1", "2", "3"])
-      ], cardAnimation: id, selectedCard: Binding<CardContent?>(get: { return nil }, set: {_ in }))
+    let questions = [QuizQuestion(difficulty: "easy", question: "How old am I", correctAnswer: "12", incorrectAnswers: ["1", "2", "3"]),
+                     QuizQuestion(difficulty: "easy", question: "How old are U", correctAnswer: "12", incorrectAnswers: ["1", "2", "3"])]
+    return Previewer {
+      Quiz(category: Category.allCases.first!, questions: questions.map { QuizQuestionEntity(from: $0) }, cardAnimation: id, selectedCard: Binding<CardContent?>(get: { return nil }, set: {_ in }))
     }
   }
 }

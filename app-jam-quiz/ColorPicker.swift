@@ -22,9 +22,9 @@ class ColorPicker {
       case .dark:
         switch category {
           case .books: return Color(.white)
-          case .movies: return Color(ColorTheme.accentOne.rawValue)
+          case .movies: return Color(.white)
           case .music: return Color(.white)
-          case .videoGames: return Color(.black)
+          case .videoGames: return Color(.white)
         }
       default:
         switch category {
