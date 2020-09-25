@@ -129,12 +129,14 @@ struct Quiz: View {
                 Group {
                   if isCorrect == true {
                     Text("Correct!")
-                      .font(.headline) + Text("\(Self.correct_emoji.randomElement()!)")
+                      .font(.title)
+                      .bold()
                   }
                   
                   if isCorrect == false {
                     Text("Incorrect!")
-                      .font(.headline) + Text("\(Self.incorrect_emoji.randomElement()!)")
+                      .font(.title)
+                      .bold()
                   }
                   
                 }
@@ -234,14 +236,6 @@ struct Quiz: View {
     self.isCorrect = isCorrect
     
     answeredQuestion = true
-    
-//    withAnimation(Animation.easeOut(duration: 0.2)) {
-//
-//
-//    }
-//    withAnimation(Animation.default.delay(10.0)) {
-//      answeredQuestion = false
-//    }
     
     withAnimation {
       if isCorrect {
