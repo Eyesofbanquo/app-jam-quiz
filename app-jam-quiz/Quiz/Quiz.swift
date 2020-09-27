@@ -268,7 +268,7 @@ struct Quiz: View {
 
     return ScrollView(showsIndicators: false) {
       GroupBox(label: Text(quizTitleBinding.wrappedValue), content: {
-        LazyVStack(alignment: .leading) {
+        LazyVStack(alignment: .leading, spacing: 8.0) {
           ForEach((0..<question.total), id: \.self) { idx in
             QuizButton(label: Self.AnswerLabels[idx], content: questions[currentQuestion].randomizedQuestions[idx]) {
               grade(answerChoice: questions[currentQuestion].randomizedQuestions[idx], at: idx)

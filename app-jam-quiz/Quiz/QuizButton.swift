@@ -41,21 +41,22 @@ struct QuizButton: View {
       gradeAction()
       next()
     }) {
-      GroupBox(label: HStack(alignment: .center) {
+      HStack(alignment: .center) {
         Text(label)
           .lineLimit(nil)
           .padding(12.0)
           .background(Color.red)
           .clipShape(Circle())
+          .layoutPriority(1)
         Text(quizTitleBinding.wrappedValue)
           .foregroundColor(Color(.label))
-          .layoutPriority(1)
         Spacer()
-      }, content: {
-        
-      }).groupBoxStyle(DefaultGroupBoxStyle())
+      }
+      .padding()
+      .background(Color(.tertiarySystemBackground))
+      .cornerRadius(16.0)
+
     }
-    
     .foregroundColor(.black)
   }
 }
