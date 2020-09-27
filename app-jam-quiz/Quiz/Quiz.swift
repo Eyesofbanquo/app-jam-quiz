@@ -127,33 +127,6 @@ struct Quiz: View {
                 
                 if instantKey {
                   VStack {
-                    Group {
-                      if isCorrect == true {
-                        Text("Correct!")
-                          .font(.title)
-                          .bold()
-                      }
-                      
-                      if isCorrect == false {
-                        Text("Incorrect!")
-                          .font(.title)
-                          .bold()
-                      }
-                      
-                    }
-                    .opacity(answeredQuestion ? 1.0 : 0.0)
-                    .font(.headline)
-                    .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
-                    .padding(.top)
-                    .onAppear {
-                      DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        withAnimation {
-                          self.answeredQuestion = false
-                          self.isCorrect = nil
-                        }
-                      }
-                    }
-                    
                     HStack {
                       ProgressView(value: (Double(currentQuestion) / Double(10)))
                         .progressViewStyle(LinearProgressViewStyle(tint: colorPicker.textColor(for: category, forScheme: colorScheme)))
@@ -352,8 +325,6 @@ struct Quiz: View {
             }
           }
         }
-//        .animation(.none)
-        
       }
       .padding()
       .background(Color(.secondarySystemBackground))

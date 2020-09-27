@@ -8,11 +8,28 @@
 import Foundation
 import SwiftUI
 
+extension Text {
+  func prepareRecolor(_ colorScheme: ColorScheme) -> some View {
+    return Group {
+      if colorScheme == .light {
+        self.colorInvert()
+      } else {
+        self
+      }
+    }
+    
+  }
+}
+
 struct QuizButton: View {
+  
+  @Environment(\.colorScheme) var colorScheme
   
   @State var convertedLabel: String = ""
   @State var isCorrect: Bool = false
   @State var selectedChoice: Bool = false
+  @State var labelFGColor: Color = Color(.label)
+  @State var contentFGColor: Color = Color(.label)
   var upNext: Binding<Bool>
   var label: String
   var content: String
@@ -46,7 +63,7 @@ struct QuizButton: View {
       self.isCorrect = gradeAction()
 
       withAnimation(Animation.easeInOut.delay(0.75)) {
-          selectedChoice = true
+        selectedChoice = true
       }
       
         
@@ -61,12 +78,16 @@ struct QuizButton: View {
         Text(label)
           .lineLimit(nil)
           .padding(12.0)
+          
+          .foregroundColor(Color(.label))
+          .colorMultiply(selectedChoice ? labelTextColor : Color(.black))
           .background(selectedChoice ? labelBackgroundColor : Color(.systemRed))
           .clipShape(Circle())
-          .foregroundColor(selectedChoice ? labelTextColor : Color(.label))
-        Text(quizTitleBinding.wrappedValue)
-          .foregroundColor(selectedChoice ? answerChoiceTextColor : Color(.label))
-
+        
+        Text(convertedLabel)
+          .foregroundColor(Color(.label))
+          .prepareRecolor(colorScheme)
+          .colorMultiply(selectedChoice ? Color(.white) : Color(.label))
         Spacer()
       }
       .padding()
@@ -97,7 +118,7 @@ struct QuizButton: View {
   
   private var labelTextColor: Color {
     switch (isCorrect) {
-      default: return Color(.black)
+      default: return Color(.systemBackground)
     }
   }
 }

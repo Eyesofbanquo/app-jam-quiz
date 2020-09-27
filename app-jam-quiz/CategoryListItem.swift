@@ -24,10 +24,10 @@ struct CategoryListItem: View {
       .resizable()
       .aspectRatio(contentMode: .fill)
       .frame(width: UIScreen.main.bounds.width * 0.95)
-      .scaleEffect(expand ? 1.2 : 1.0)
+      .scaleEffect(expand ? 1.1 : 1.0)
       .animation(Animation.easeOut(duration: 0.1))
       
-      .scaleEffect(expand ? 1.0 : 1.2)
+      .scaleEffect(expand ? 1.0 : 1.1)
       .animation(Animation.easeIn(duration: 0.1).delay(0.1))
       .overlay(GeometryReader { geo in
         VStack {
