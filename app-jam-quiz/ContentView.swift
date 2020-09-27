@@ -49,7 +49,7 @@ struct ContentView: View {
         Quiz(category: selectedCard.category,
              cardAnimation: cardAnimation,
              selectedCard: $selectedCard)
-          .transition(AnyTransition.asymmetric(insertion: .opacity, removal: .move(edge: .trailing)))
+          .transition(AnyTransition.asymmetric(insertion: .opacity, removal: .move(edge: .leading)))
           .zIndex(1.0)
       }
     }
