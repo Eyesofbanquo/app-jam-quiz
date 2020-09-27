@@ -69,11 +69,14 @@ struct Onboarding: View {
   }
   
   private var SubContent: some View {
-    VStack(alignment: .leading, spacing: 44.0) {
-      ForEach(content, id: \.self) { item in
-        listContentItem(item)
+    ScrollView(showsIndicators: false) {
+      VStack(alignment: .leading, spacing: 44.0) {
+        ForEach(content, id: \.self) { item in
+          listContentItem(item)
+        }
       }
     }
+    
   }
   
   private func listContentItem(_ item: OnboardingListContent) -> some View {
