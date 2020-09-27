@@ -164,6 +164,7 @@ struct Quiz: View {
         }
         .layoutPriority(1)
         .transition(AnyTransition.asymmetric(insertion: AnyTransition.move(edge: .trailing), removal: AnyTransition.move(edge: .leading)))
+        .zIndex(1.0)
         
       }
       
@@ -228,7 +229,9 @@ struct Quiz: View {
             .padding(.top)
             Spacer()
           }
-          .zIndex(2.0)
+          .zIndex(2)
+
+         
         }
        
       }
@@ -240,7 +243,6 @@ struct Quiz: View {
                 resultsData: $questionsAnswered,
                 streak: $streak)
           .transition(.move(edge: .trailing))
-          .animation(.default)
           .zIndex(2.0)
       }
     }
