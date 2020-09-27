@@ -11,72 +11,41 @@ import SwiftUI
 struct CategoryList: View {
   @State private var currentPosition = 0
   @State private var dragAmount = CGSize.zero
+  @State private var tapped: Bool = false
+  @State private var untapped: Bool = false
+  @State private var scaleValue: CGFloat = 1.0
   
   let cards: [CardContent]
+  
   @Binding var selectedCard: CardContent?
   
   var body: some View {
     PageView
   }
   
-  private func Item(_ card: CardContent) -> some View {
-    Image(card.category.image)
-      .resizable()
-      .aspectRatio(contentMode: .fill)
-      .frame(width: UIScreen.main.bounds.width * 0.95)
-      
-      .overlay(GeometryReader { geo in
-        VStack {
-          Spacer()
-          Rectangle()
-            .foregroundColor(card.color)
-            .frame(height: geo.size.height * 0.35)
-            .overlay(
-              ScrollView(.vertical, showsIndicators: false) {
-                HStack {
-                  VStack(alignment: .leading, spacing: 8.0) {
-                    Text(card.category.name)
-                      .font(.largeTitle)
-                      .bold()
-                    VStack(alignment: .leading) {
-                      HStack(spacing: 2.0) {
-                        HStack(spacing: 1.0) {
-                          Image(systemName: "lightbulb.fill")
-                            .font(.subheadline)
-                          Text("Test your knowledge")
-                            .font(.subheadline)
-                            .bold()
-                        }
-                        .foregroundColor(Color(.systemYellow))
-                      }
-                      Text(card.category.description)
-                        .font(.subheadline)
-                      
-                    }
-                    
-                    
-                    Spacer()
-                  }.padding()
-                  Spacer()
-                  
-                }.foregroundColor(.white)
-              }
-              )
-        }
-      })
-      .clipped()
-      .cornerRadius(16.0)
-  }
-  
   private var PageView: some View {
     TabView {
       ForEach((0..<cards.count), id: \.self) { idx in
-        Item(cards[idx])
+        CategoryListItem(card: cards[idx], selectedCard: $selectedCard)
           .padding()
           .onTapGesture {
-            withAnimation {
-              selectedCard = cards[idx]
-            }
+//            self.tapped = true
+//            }
+            
+//            withAnimation(Animation.default.delay(1.0)) {
+//              scaleValue = 0.5
+//            }
+
+//            withAnimation(Animation.default.delay(1.0)
+//            ) {
+//              untapped.toggle()
+//            }
+//            withAnimation(Animation.easeIn.delay(1.0)) {
+//              tapped = false
+//            }
+//            withAnimation {
+//              selectedCard = cards[idx]
+//            }
           }
       }
     }
