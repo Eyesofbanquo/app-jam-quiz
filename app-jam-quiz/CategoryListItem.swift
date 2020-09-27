@@ -20,6 +20,9 @@ struct CategoryListItem: View {
   @State private var expand: Bool = false
   
   var body: some View {
+//    ZStack {
+//
+//    }
     Image(card.category.image)
       .resizable()
       .aspectRatio(contentMode: .fill)
@@ -37,7 +40,9 @@ struct CategoryListItem: View {
             .frame(height: geo.size.height * 0.35)
             .overlay(Overlay(card: card))
         }
-      })
+        .onTapGesture {} 
+      }
+      .animation(.none))
       .clipped()
       .cornerRadius(16.0)
       .onTapGesture {
