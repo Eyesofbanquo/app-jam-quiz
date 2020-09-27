@@ -42,12 +42,9 @@ import SwiftUI
 import UIKit
 
 struct Quiz: View {
-  
-  private static var correct_emoji: [String] = [
-  "😃", "😁", "😍", "🙃", "😁"]
-  private static var incorrect_emoji: [String] = [
-  "😅", "😕", "😭", "🥺", "😥"]
     
+  @ScaledMetric(relativeTo: .largeTitle) var titleSize: CGFloat = 72
+
   @Environment(\.colorScheme) var colorScheme
   
   @AppStorage(AppStorageKeys.prefferedDifficulty.key) var difficultyIndex: Int = 1
@@ -81,18 +78,20 @@ struct Quiz: View {
   @Binding var selectedCard: CardContent?
   
   @State private var showResults = false
+  @State private var upNext: Bool = false
   
   @State private var streak: Int = 0
   @State private var correctAnswers: Double = 0
   @State private var isCorrect: Bool?
   @State private var answeredQuestion: Bool = false
+  @State private var animateHeadline: Bool = false
+  @State private var animateSubheadline: Bool = false
   
   private static var AnswerLabels: [String] = [
   "A", "B", "C", "D"
   ]
   
   @State var quizTitle: String = ""
-  
   
   var body: some View {
     ZStack {
@@ -101,92 +100,164 @@ struct Quiz: View {
                                in: cardAnimation,
                                properties: [.size], isSource: true)
       
-      VStack() {
-        VStack {
-          VStack {
-            HStack {
-              Text(category.rawValue)
-                .font(.largeTitle)
-                .bold()
-                .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
-              Spacer()
-              Button(action: {
-                let impact = UIImpactFeedbackGenerator(style: .medium)
-                impact.prepare()
-                impact.impactOccurred()
-                withAnimation {
-                  selectedCard = nil
+      if upNext == false {
+        Group {
+          VStack() {
+            VStack {
+              VStack {
+                HStack {
+                  Text(category.rawValue)
+                    .font(.largeTitle)
+                    .bold()
+                    .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
+                  Spacer()
+                  Button(action: {
+                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                    impact.prepare()
+                    impact.impactOccurred()
+                    withAnimation {
+                      selectedCard = nil
+                    }
+                  }) {
+                    Text("Leave Quiz")
+                      .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
+                  }
+                  
                 }
-              }) {
-                Text("Leave Quiz")
-                  .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
+                
+                if instantKey {
+                  VStack {
+                    Group {
+                      if isCorrect == true {
+                        Text("Correct!")
+                          .font(.title)
+                          .bold()
+                      }
+                      
+                      if isCorrect == false {
+                        Text("Incorrect!")
+                          .font(.title)
+                          .bold()
+                      }
+                      
+                    }
+                    .opacity(answeredQuestion ? 1.0 : 0.0)
+                    .font(.headline)
+                    .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
+                    .padding(.top)
+                    .onAppear {
+                      DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        withAnimation {
+                          self.answeredQuestion = false
+                          self.isCorrect = nil
+                        }
+                      }
+                    }
+                    
+                    HStack {
+                      ProgressView(value: (Double(currentQuestion) / Double(10)))
+                        .progressViewStyle(LinearProgressViewStyle(tint: colorPicker.textColor(for: category, forScheme: colorScheme)))
+                    }
+                    .padding()
+                  }
+                }
               }
+              .padding()
+              .background(Color(category.colorName).edgesIgnoringSafeArea(.top))
+              
+              
+              if questions.count > 0  {
+                QuizContent(question: questions[currentQuestion])
+              }
+            }
+            
+            if questions.count == 0 {
+              Spacer()
+              ProgressView()
+                .scaleEffect(1.5)
+                .progressViewStyle(CircularProgressViewStyle(tint: Color.white))
               
             }
             
-            if instantKey {
-              VStack {
-                Group {
-                  if isCorrect == true {
-                    Text("Correct!")
-                      .font(.title)
-                      .bold()
-                  }
+            
+            Spacer()
+            
+            Color(category.colorName)
+              .edgesIgnoringSafeArea(.bottom)
+              .frame(height: UIScreen.main.bounds.height * 0.05)
+              .opacity(0.2)
+            
+          }
+        }
+        .layoutPriority(1)
+        .transition(AnyTransition.asymmetric(insertion: AnyTransition.move(edge: .trailing), removal: AnyTransition.move(edge: .leading)))
+        
+      }
+      
+      
+      
+      if upNext {
+        ZStack(alignment: .leading) {
+          Color(.systemBackground)
+            .ignoresSafeArea()
+            .transition(AnyTransition.asymmetric(insertion: AnyTransition.move(edge: .trailing), removal: AnyTransition.move(edge: .leading)))
+            .zIndex(1)
+            .onAppear {
+              DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation {
+                  animateHeadline = true
+                }
+              }
+              
+              DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                withAnimation {
+                  animateSubheadline = true
+                }
+              }
+              
+              DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                withAnimation(Animation.easeInOut(duration: 0.2)) {
+                  animateHeadline = false
+                  animateSubheadline = false
+                }
+              }
+              
+              DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                withAnimation {
                   
-                  if isCorrect == false {
-                    Text("Incorrect!")
-                      .font(.title)
-                      .bold()
-                  }
-                  
+                  upNext = false
+                  setNextQuestion()
                 }
-                .opacity(answeredQuestion ? 1.0 : 0.0)
-                .font(.headline)
-                .foregroundColor(colorPicker.textColor(for: category, forScheme: colorScheme))
-                .padding(.top)
-                .onAppear {
-                  DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    withAnimation {
-                      self.answeredQuestion = false
-                      self.isCorrect = nil
-                    }
-                  }
-                }
-                
-                HStack {
-                  ProgressView(value: (Double(currentQuestion) / Double(10)))
-                    .progressViewStyle(LinearProgressViewStyle(tint: colorPicker.textColor(for: category, forScheme: colorScheme)))
-                }
-                .padding()
               }
             }
+          
+          HStack {
+            VStack(alignment: .leading) {
+              if animateHeadline {
+                Text("Up Next!")
+                  .font(.system(size: titleSize * 0.75))
+                  .bold()
+                  .foregroundColor(Color(category.colorName))
+                  .transition(AnyTransition.asymmetric(insertion: AnyTransition.move(edge: .trailing)
+                                                       , removal: AnyTransition.move(edge: .leading)
+                  ))
+              }
+              
+              if animateSubheadline {
+                Text(currentQuestion + 2 == 11 ? "Results" : "Question #\(currentQuestion + 2)")
+                  .font(.system(size: titleSize * 0.45))
+                  .transition(AnyTransition.asymmetric(insertion: AnyTransition.opacity, removal: AnyTransition.move(edge: .leading)))
+              }
+              
+             Spacer()
+            }
+            .padding()
+            .padding(.top)
+            Spacer()
           }
-          .padding()
-          .background(Color(category.colorName).edgesIgnoringSafeArea(.top))
-          
-          
-          if questions.count > 0  {
-            QuizContent(question: questions[currentQuestion])
-              .animation(.default)
-          }
+          .zIndex(2.0)
         }
-        
-        if questions.count == 0 {
-          Spacer()
-          ProgressView()
-            .scaleEffect(1.5)
-            .progressViewStyle(CircularProgressViewStyle(tint: Color.white))
-          
-        }
-        
-        
-        Spacer()
-        
-        Color(category.colorName)
-          .edgesIgnoringSafeArea(.bottom)
-          .frame(height: UIScreen.main.bounds.height * 0.05)
-          .opacity(0.2)
-        
+       
       }
       
       if showResults {
@@ -197,7 +268,7 @@ struct Quiz: View {
                 streak: $streak)
           .transition(.move(edge: .trailing))
           .animation(.default)
-          .zIndex(1.0)
+          .zIndex(2.0)
       }
     }
     .onAppear(perform: {
@@ -228,7 +299,7 @@ struct Quiz: View {
   
   private func grade(
                      answerChoice choice: String,
-                     at idx: Int) {
+                     at idx: Int) -> Bool {
     let isCorrect = questions[currentQuestion].correctAnswer == choice
     questionsAnswered[currentQuestion] = isCorrect
     
@@ -253,6 +324,8 @@ struct Quiz: View {
         generator.notificationOccurred(.success)
       }
     }
+    
+    return isCorrect
   }
   
   private func QuizContent(question: QuizQuestionEntity) -> some View {
@@ -267,20 +340,25 @@ struct Quiz: View {
     quizTitleBinding.wrappedValue = questions[currentQuestion].question
 
     return ScrollView(showsIndicators: false) {
-      GroupBox(label: Text(quizTitleBinding.wrappedValue), content: {
+      VStack(alignment: .leading, spacing: 8.0) {
+        Text(quizTitle)
+          .font(.headline)
         LazyVStack(alignment: .leading, spacing: 8.0) {
           ForEach((0..<question.total), id: \.self) { idx in
-            QuizButton(label: Self.AnswerLabels[idx], content: questions[currentQuestion].randomizedQuestions[idx]) {
+            QuizButton(label: Self.AnswerLabels[idx], content: questions[currentQuestion].randomizedQuestions[idx], upNext: $upNext) {
               grade(answerChoice: questions[currentQuestion].randomizedQuestions[idx], at: idx)
             } next: {
               setNextQuestion()
             }
           }
         }
+//        .animation(.none)
         
-      })
+      }
+      .padding()
+      .background(Color(.secondarySystemBackground))
     }
-    .padding()
+    .padding(.horizontal)
   }
 }
 
