@@ -11,19 +11,24 @@ import SwiftUI
 struct QuizButton: View {
   
   @State var convertedLabel: String = ""
+  @State var isCorrect: Bool = false
+  @State var selectedChoice: Bool = false
+  var upNext: Binding<Bool>
   var label: String
   var content: String
-  var gradeAction: () -> Void
+  var gradeAction: () -> Bool
   var next: () -> Void
   
   init(label: String,
        content: String,
-       gradeAction: @escaping () -> Void,
-       next: @escaping () -> Void ) {
+       upNext: Binding<Bool>,
+       gradeAction: @escaping () -> Bool,
+       next: @escaping () -> Void) {
     self.label = label
     self.content = content
     self.gradeAction = gradeAction
     self.next = next
+    self.upNext = upNext
   }
   
   var body: some View {
@@ -38,25 +43,62 @@ struct QuizButton: View {
     quizTitleBinding.wrappedValue = content
     
     return Button(action: {
-      gradeAction()
-      next()
+      self.isCorrect = gradeAction()
+
+      withAnimation(Animation.easeInOut.delay(0.75)) {
+          selectedChoice = true
+      }
+      
+        
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        selectedChoice = false
+        withAnimation {
+          upNext.wrappedValue = true
+        }
+      }
     }) {
-      GroupBox(label: HStack(alignment: .center) {
+      HStack(alignment: .center) {
         Text(label)
           .lineLimit(nil)
           .padding(12.0)
-          .background(Color.red)
+          .background(selectedChoice ? labelBackgroundColor : Color(.systemRed))
           .clipShape(Circle())
+          .foregroundColor(selectedChoice ? labelTextColor : Color(.label))
         Text(quizTitleBinding.wrappedValue)
-          .foregroundColor(Color(.label))
-          .layoutPriority(1)
+          .foregroundColor(selectedChoice ? answerChoiceTextColor : Color(.label))
+
         Spacer()
-      }, content: {
-        
-      }).groupBoxStyle(DefaultGroupBoxStyle())
+      }
+      .padding()
+      .background(selectedChoice ? answerChoiceBackgroundColor : Color(.tertiarySystemBackground))
+      .cornerRadius(16.0)
     }
     
-    .foregroundColor(.black)
+  }
+  
+  private var answerChoiceBackgroundColor: Color {
+    switch (isCorrect) {
+      case false: return Color(.systemRed)
+      case true: return Color(.systemGreen)
+    }
+  }
+  
+  private var answerChoiceTextColor: Color {
+    switch (isCorrect) {
+      default: return Color(.white)
+    }
+  }
+  
+  private var labelBackgroundColor: Color {
+    switch (isCorrect) {
+      default: return Color(.white)
+    }
+  }
+  
+  private var labelTextColor: Color {
+    switch (isCorrect) {
+      default: return Color(.black)
+    }
   }
 }
 
